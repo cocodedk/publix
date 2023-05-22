@@ -87,13 +87,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'app',
-        'USER': 'root',
-        'PASSWORD': '!!!credsecpasswordisgood!!!',
+        'USER': 'credsec',
+        'PASSWORD': '123credsec123',
         'HOST': 'mariadb',
         'PORT': '3306',
     }
 }
-
 
 
 # Password validation

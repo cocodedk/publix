@@ -64,3 +64,8 @@ Before you proceed, ensure that both Docker and Docker Compose are installed on 
    docker-compose down
    ```
 
+4. This will stop the containers, but it will not delete the data stored in the MariaDB container. If you want to delete the data as well (which is useful if you’ve changed your bootstrap files), you can use the following command:
+   ```
+   docker-compose down --volumes
+   ```
+

@@ -16,10 +16,15 @@ services:
   mariadb:
     image: mariadb:latest
     environment:
-      MYSQL_ROOT_PASSWORD: "!!!credsecpasswordisgood!!!"
+      MYSQL_ROOT_PASSWORD: 123pass123word123
       MYSQL_DATABASE: app
-    volumes:
-      - mariadb_data:/var/lib/mysql
+      MYSQL_USER: credsec
+      MYSQL_PASSWORD: 123credsec123
+      TIMEZONE: "Europe/Copenhagen"
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
     networks:
       - credsec_network
   nginx:
@@ -35,6 +40,3 @@ services:
     restart: on-failure
 networks:
   credsec_network:
-    name: credsec
-volumes:
-  mariadb_data:

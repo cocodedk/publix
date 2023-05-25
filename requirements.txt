@@ -20,4 +20,6 @@ requests
 lxml
 feedparser
 openai
-intelxapi
+pygments
+pytest
+pytest-django

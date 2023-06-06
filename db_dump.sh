@@ -27,7 +27,7 @@ echo $dump_file
 
 
 # dump the database and add the data and time to the file name and zip it to zip format
-mysqldump -h $host -u itsvamf -p123pass123word123 itsvamf --protocol=TCP | gzip > $dump_file
+mysqldump -h $host -u credsec -p123credsec123 app --protocol=TCP | gzip -9 > $dump_file
 
 # check if the file exists
 if [ -f $dump_file ]; then

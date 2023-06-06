@@ -163,7 +163,10 @@ echo "*******************************"
 echo "Starting the watchdog_helper.py"
 echo "*******************************"
 
-# $PYTHON ./watchdog_helper.py &
+$PYTHON ./watchdog_helper.py &
+
+# do a ps and grep for the watchdog_helper.py and make sure that it is running
+ps -ef | grep watchdog_helper.py
 
 
 echo "******************************"
@@ -171,8 +174,8 @@ echo "Starting the Livereload server"
 echo "******************************"
 $PYTHON manage.py livereload &
 
-# echo closing all the related processes
-
+# do a ps and grep for the livereload and make sure that it is running
+ps -ef | grep livereload
 
 echo "**************************"
 echo "Starting the Django server"

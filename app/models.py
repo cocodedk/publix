@@ -1,3 +1,4 @@
+import hashlib
 from django.db import models
 import uuid
 from django.db import models
@@ -53,10 +54,67 @@ class Tagsh(UUIDModel):
     value = models.CharField(max_length=200)
     valueh = models.CharField(max_length=200)
 
+class TLD(UUIDModel):
+    name = models.CharField(max_length=100, unique=True)
+    # any other fields you may need for a TLD
+
+class Domain(UUIDModel):
+    name = models.CharField(max_length=100)
+    tld = models.ForeignKey(TLD, related_name='domains', on_delete=models.CASCADE)
+    # any other fields you may need for a domain
+    class Meta:
+        unique_together = ('name', 'tld',)
+        
+from app.cryptography import Encryptor  # assuming the Encryptor class is defined here
+
 class ContentLine(UUIDModel):
     main_data = models.ForeignKey(MainData, related_name='content_lines', on_delete=models.CASCADE)
-    line = models.TextField()
-    email = models.EmailField(null=True, blank=True)
-    password = models.CharField(max_length=255, null=True, blank=True)  # potentially hashed password
+    line = models.BinaryField()
+    email = models.BinaryField()  # encrypted email
+    email_hash = models.CharField(max_length=64)  # hashed email for blind indexing
+    password = models.BinaryField(null=True, blank=True)  # encrypted password
+    password_hash = models.CharField(max_length=64, null=True, blank=True)  # hashed password for blind indexing
+    domain = models.ForeignKey(Domain, related_name='content_lines', on_delete=models.CASCADE)
 
+    def save(self, encryptor, salt, *args, **kwargs):
 
+        if self.email is not None:
+            # lowercase the email to make it case insensitive
+            self.email = self.email.lower()
+            # Create a hash for indexing
+            self.email_hash = self.hash_string(self.email, salt)            
+            # Encrypt email
+            self.email = encryptor.encrypt(self.email)
+
+            if self.password is not None:
+                self.password_hash = self.hash_string(self.password, salt)
+                # Encrypt password
+                self.password = encryptor.encrypt(self.password)                
+
+            if self.line is not None:
+                # Encrypt line
+                self.line = encryptor.encrypt(self.line.strip())
+
+        super().save(*args, **kwargs)
+
+    # create a class mehtod for hasing strings with salt
+    # lowercase the string to make it case insensitive
+    # encode the string to bytes and then hash it
+    @classmethod
+    def hash_string(cls, string, salt):
+        return hashlib.sha256(string.encode() + salt).hexdigest()
+
+    @classmethod
+    def search_by_email(cls, email, salt, main_data = None):
+        email_hash = hashlib.sha256(email.lower().encode() + salt).hexdigest()
+        if main_data is not None:
+            return cls.objects.filter(email_hash=email_hash, main_data=main_data)
+        return cls.objects.filter(email_hash=email_hash)
+
+    @classmethod
+    def search_by_password(cls, password, salt, main_data = None):
+        password_hash = hashlib.sha256(password.encode() + salt).hexdigest()
+        if main_data is not None:
+            return cls.objects.filter(password_hash=password_hash, main_data=main_data)        
+        return cls.objects.filter(password_hash=password_hash)
+    

@@ -1,0 +1,11 @@
+.navbar {
+  justify-content: center;
+}
+
+.even {
+  background-color: #f9f9f9;
+}
+
+.odd {
+  background-color: #ffffff;
+}

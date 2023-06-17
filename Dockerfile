@@ -7,7 +7,9 @@ WORKDIR /code
 # copy the dependencies file to the working directory
 COPY requirements.txt .
 
-RUN apt update
+RUN apt-get update && apt-get install -y tzdata
+
+ENV TZ=UTC
 
 # install dependencies
 # RUN python3 -m pip install -r requirements.txt

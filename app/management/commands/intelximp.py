@@ -40,7 +40,7 @@ class Command(BaseCommand):
         parser.add_argument('maxresults', type=int, help='The maximum number of results to fetch')
 
     def handle(self, *args, **options):
-        search_term = options['search_term']
+        search_term = options['search_term'].strip().lower()
         maxresults = options['maxresults']
         
 
@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
 
         # save tlds
-        # save_tlds()
+        save_tlds()
 
         b = ['leaks.public','dumpster']
 
@@ -88,24 +88,22 @@ class Command(BaseCommand):
             result['simhash'] = str(result['simhash'])
 
             # Create MainData object, skip if already exists
-            main_data, created = MainData.objects.get_or_create(systemid=result['systemid'], defaults=result)
-            if not created:
-                print(main_data)
-                print(f"MainData with systemid {result['systemid']} already exists, skipping")
+            try:
+                main_data, created = MainData.objects.get_or_create(systemid=result['systemid'], defaults=result)
+            except Exception as e:
+                print(e)
+                print(result)
+                continue
 
-                # use search_by_email of the ContentLine class
-                content_lines = ContentLine.search_by_email(email=search_term, salt=settings.SALT, main_data=main_data)
-                # decrypt the email and password
+            content_lines = ContentLine.search_by_email(email=search_term, salt=settings.SALT, main_data=main_data)
 
-                if len(content_lines) > 0:
-                    print(f"Found {len(content_lines)} hits in ContentLine objects")
-                    for content_line in content_lines:
-                        print(encryptor.decrypt(content_line.line))
-                        print(encryptor.decrypt(content_line.email))
-                        print(encryptor.decrypt(content_line.password))
-                    # continue to the next content_line
-                    continue
-
+            # if the count of content_lines is greater than 0 continue
+            if len(content_lines) > 0:
+                print(f"Found {len(content_lines)} hits in ContentLine objects")
+                for content_line in content_lines:
+                    print(encryptor.decrypt(content_line.line))
+                    print(encryptor.decrypt(content_line.email))
+                    print(encryptor.decrypt(content_line.password))
                 # continue to the next iteration
                 continue
 
@@ -124,13 +122,15 @@ class Command(BaseCommand):
 
             # Create ContentLine objects
             for line in contents.splitlines():
+
+                # if search_term not is in line continue
+                if search_term not in line.lower():
+                    continue
+
                 email, password, domain, tld = None, None, None, None
                 try:
-                    if ',' in line:
-                        parts = line.split(',')
-                        email, password = parts[2], parts[3] if len(parts) > 3 else None
-                    elif ':' in line:
-                        email, password = self.parse_line(line)                    
+                    
+                    email, password = self.parse_line(line)                    
                     
                     # strip the email and password
 
@@ -144,8 +144,15 @@ class Command(BaseCommand):
                     if password is not None:
                         password = password.strip()
                     # document the line below
-                    # get the domain and tld from the email  
-                    domain= email.split('@')[1]
+                    # get the domain and tld from the email
+                    # if is valid email
+                    if '@' in email and '.' in email:
+                        domain= email.split('@')[1]
+                    else:
+                        continue
+
+                     # print the line
+                    print(line)
 
                     # get the tld from the domain
                     tld = domain.split('.')[-1]
@@ -209,10 +216,12 @@ class Command(BaseCommand):
                         raise IntegrityError("Unable to get or create object")
 
     def parse_line(self, line):
-        print(f"line: {line}")
-        parts = line.split(':', 2)  # Only split on the first two colons
+        separators = [',', ';']
+        for separator in separators:
+            line = line.replace(separator, ':')
+        
+        parts = line.split(':', 2)
         if len(parts) < 2:
             raise ValueError(f"Invalid format. The line should be in the format 'email:password' in {line}")
-        email = parts[0]
-        password = parts[1]
-        return email, password
+
+        return parts[0], parts[1]

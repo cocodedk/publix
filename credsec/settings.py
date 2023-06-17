@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,20 +21,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
+load_dotenv()
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'bzL$PV3yv2xxe6qT%4cJeF*PbmLSsi25o$7&dW2HhuiNdJft&iys^CcwX9d*daU*z'
+SECRET_KEY = os.getenv('SECRET_KEY')
 # Encryption passphrase
-ENCRYPTION_KEY = b'27&@nyP2GoL9BaeY#'
+ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY').encode()
 # HASHing Salt
-SALT = b'Ds2Rkq97WMgWJh4$'
+SALT = os.getenv('SALT').encode()
 # INTELX KEY
-INTELX_KEY = '2eb95861-c110-4485-9359-5f29927dcea6'
+INTELX_KEY = os.getenv('INTELX_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
+LIVERELOAD_PORT = 35729
+LIVERELOAD_HOST = '0.0.0.0'
 
 # Application definition
 

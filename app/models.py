@@ -41,6 +41,10 @@ class MainData(UUIDModel):
     perfectmatch = models.BooleanField()
     group = models.CharField(max_length=200)
 
+    # tostring
+    def __str__(self):
+        return f"{self.date} {self.description} {self.name} {self.bucket} {self.bucketh}"
+
 class Relation(UUIDModel):
     main_data = models.ForeignKey(MainData, related_name='relations', on_delete=models.CASCADE)
     target = models.UUIDField(max_length=200)
@@ -117,4 +121,3 @@ class ContentLine(UUIDModel):
         if main_data is not None:
             return cls.objects.filter(password_hash=password_hash, main_data=main_data)        
         return cls.objects.filter(password_hash=password_hash)
-    

@@ -10,7 +10,7 @@ apt install software-properties-common -y
 
 apt update -y
 apt upgrade -y
-apt install wget build-essential checkinstall  libreadline-gplv2-dev  libncursesw5-dev  libssl-dev  libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev -y
+apt install wget build-essential checkinstall  libreadline-gplv2-dev  libncursesw5-dev  libssl-dev  libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev tzdata -y
 
 # installing gunicorn
 apt install gunicorn -y
@@ -27,8 +27,14 @@ apt install ca-certificates apt-transport-https software-properties-common lsb-r
 
 command -v $PYTHON
 
-# pause the script for 3 seconds
-sleep 3
+# set the TZ to UTC
+export TZ=UTC
+
+# set the timezone to Europe/Copenhagen
+timedatectl set-timezone Europe/Copenhagen
+
+# set the OS to sync with a ntp server
+timedatectl set-ntp true
 
 # install python-3.11 if it is not installed
 if ! [ -x "$(command -v $PYTHON)" ]; then
@@ -147,16 +153,24 @@ echo "***************************"
 $PYTHON -m pip install -r requirements.txt
 
 # echo the message that if they need to restore data into the database they can do it by running the db_load.sh script
-echo "**********************************************************************************************"
-echo "**********************************************************************************************"
-echo "If you need to restore data into the database you can do it by running the ./db_load.sh script"
-echo "**********************************************************************************************"
-echo "**********************************************************************************************"
+echo "************************************************"
+echo "If you need to restore data into the database" 
+echo "you can do it by running the ./db_load.sh script"
+echo "************************************************"
 
 # make the ./db_load.sh script executable
 chmod +x ./db_load.sh
 
 ls -la ./db_load.sh
+
+# check if the watchdog_helper.py is running and if it is running kill it
+if ps -ef | grep watchdog_helper.py | grep -v grep > /dev/null 2>&1; then
+    echo "watchdog_helper.py is running"
+    echo "Killing watchdog_helper.py"
+    pkill -f watchdog_helper.py
+else
+    echo "watchdog_helper.py is not running"
+fi
 
 # echo starting watchdog_helper.py
 echo "*******************************"
@@ -169,17 +183,33 @@ $PYTHON ./watchdog_helper.py &
 ps -ef | grep watchdog_helper.py
 
 
+# check if the livereload is running and if it is running kill it
+if ps -ef | grep livereload | grep -v grep > /dev/null 2>&1; then
+    echo "livereload is running"
+    echo "Killing livereload"
+    pkill -f livereload
+else
+    echo "livereload is not running"
+fi
+
 echo "******************************"
 echo "Starting the Livereload server"
 echo "******************************"
-$PYTHON manage.py livereload &
+$PYTHON manage.py livereload  &
 
 # do a ps and grep for the livereload and make sure that it is running
 ps -ef | grep livereload
 
+# check if gunicon is running and if it is running kill it
+if ps -ef | grep gunicorn | grep -v grep > /dev/null 2>&1; then
+    echo "gunicorn is running"
+    echo "Killing gunicorn"
+    pkill -f gunicorn
+else
+    echo "gunicorn is not running"
+fi
+
 echo "**************************"
-echo "Starting the Django server"
+echo "Starting the gunicorn"
 echo "**************************"
-gunicorn -w 4 -b 0.0.0.0:8000 credsec.wsgi:application
-# python manage.py runserver '0.0.0.0:8000'
-# $PYTHON manage.py runserver_plus
+gunicorn --reload -w 4 -b 0.0.0.0:8000 credsec.wsgi:application

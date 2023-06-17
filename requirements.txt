@@ -24,3 +24,6 @@ pygments
 pytest
 pytest-django
 cryptography
+python-dotenv
+tzdata
+inotify

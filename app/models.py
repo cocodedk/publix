@@ -67,9 +67,7 @@ class Domain(UUIDModel):
     tld = models.ForeignKey(TLD, related_name='domains', on_delete=models.CASCADE)
     # any other fields you may need for a domain
     class Meta:
-        unique_together = ('name', 'tld',)
-        
-from app.cryptography import Encryptor  # assuming the Encryptor class is defined here
+        unique_together = ('name', 'tld',)        
 
 class ContentLine(UUIDModel):
     main_data = models.ForeignKey(MainData, related_name='content_lines', on_delete=models.CASCADE)

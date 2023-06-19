@@ -163,6 +163,20 @@ chmod +x ./db_load.sh
 
 ls -la ./db_load.sh
 
+# create migrations for the django database
+echo "*******************************************"
+echo "Creating migrations for the django database"
+echo "*******************************************"
+$PYTHON manage.py makemigrations
+
+
+# migrate the django database
+echo "*****************************"
+echo "Migrating the django database"
+echo "*****************************"
+$PYTHON manage.py migrate
+
+
 # check if the watchdog_helper.py is running and if it is running kill it
 if ps -ef | grep watchdog_helper.py | grep -v grep > /dev/null 2>&1; then
     echo "watchdog_helper.py is running"

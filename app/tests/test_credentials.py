@@ -2,7 +2,7 @@ import hashlib
 from django.test import TestCase
 from app.models import ContentLine
 from django.conf import settings
-from app.cryptography import Encryptor
+from app.lib.cryptography import Encryptor
 
 # create a fake emai
 email = "something@example.com"

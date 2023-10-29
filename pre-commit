@@ -1,0 +1,8 @@
+#!/bin/sh
+chmod +x ./run_tests.sh
+if docker exec fits_web_1 ./run_tests.sh; then
+  echo "Tests passed. Proceeding with commit."
+else
+  echo "Tests failed. Aborting commit."
+  exit 1
+fi

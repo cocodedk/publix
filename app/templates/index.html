@@ -18,7 +18,8 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                <h3>Results for: {{query}}</h3>
+                {% comment %} output the number of results {% endcomment %}
+                <h3>Results for: {{query}} - {{results|length}}</h3>
             </div>
         </div>
     <div class="row">
@@ -40,13 +41,13 @@
             {% for result in results %}
             <div class="row {% cycle 'even' 'odd' %}">
                 <div class="col">
-                <p>{{ result.email }}</p>
+                <p>{{ result.email|safe }}</p>
                 </div>
                 <div class="col">
-                <p>{{ result.password }}</p>
+                <p>{{ result.password|safe }}</p>
                 </div>
                 <div class="col">
-                <p>{{ result.main_data }}</p>
+                <p>{{ result.main_data|safe }}</p>
                 </div>
             </div>
             {% endfor %}

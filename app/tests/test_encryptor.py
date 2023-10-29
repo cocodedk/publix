@@ -1,5 +1,5 @@
 from django.test import TestCase
-from app.cryptography import Encryptor
+from app.lib.cryptography import Encryptor
 
 class EncryptorTestCase(TestCase):
     def setUp(self):

@@ -1,3 +1,4 @@
+Wheel
 Werkzeug
 Django
 django-active-link
@@ -15,7 +16,6 @@ watchdog
 bs4
 gunicorn
 django-axes
-django-cors-headers
 requests
 lxml
 feedparser
@@ -27,3 +27,6 @@ cryptography
 python-dotenv
 tzdata
 inotify
+pprintpp
+prompt_toolkit
+tqdm

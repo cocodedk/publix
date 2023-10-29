@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  mariadb:
+    image: mariadb:latest
+    volumes:
+      - "./mysql-init:/docker-entrypoint-initdb.d"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123pass123word123
+      MYSQL_DATABASE: app
+      MYSQL_USER: credsec
+      MYSQL_PASSWORD: 123credsec123
+      TIMEZONE: Europe/Copenhagen
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    networks:
+      - credsec_network
+    hostname: mariadb
+    restart: on-failure
+    
+  web:
+    build: .
+    working_dir: /code
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        ./runserver.dev.sh
+    volumes:
+      - .:/code
+    ports:
+      - 35729:35729
+      - 80:80
+    networks:
+      - credsec_network
+    depends_on:
+      - mariadb
+    restart: on-failure
+    hostname: web
+  
+networks:
+  credsec_network:

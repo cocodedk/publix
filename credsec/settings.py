@@ -35,7 +35,12 @@ INTELX_KEY = os.getenv('INTELX_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'credsec',
+    'credsec.local',
+]
 
 
 LIVERELOAD_PORT = 35729
@@ -53,7 +58,7 @@ INSTALLED_APPS = [
     'livereload',
     'app',
     # 'corsheaders',
-    # 'django_extensions',
+    'django_extensions',
     # 'active_link',
     # 'axes',
 ]
@@ -67,8 +72,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
-    # "corsheaders.middleware.CorsMiddleware",
-    # "django.middleware.common.CommonMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     # 'axes.middleware.AxesMiddleware',
 ]
 
@@ -131,8 +136,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+# Timezone europe/copenhagen
+TIME_ZONE = 'Europe/Copenhagen'
+# TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -148,3 +154,27 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+RUNSERVERPLUS_SERVER_ADDRESS_PORT = '0.0.0.0:8000'
+RUNSERVERPLUS_POLLER_RELOADER_INTERVAL = 1
+# # Werkzeug reloader type [auto, watchdog, or stat]
+RUNSERVERPLUS_POLLER_RELOADER_TYPE = 'auto'
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'werkzeug': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

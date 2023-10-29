@@ -67,9 +67,7 @@ class Domain(UUIDModel):
     tld = models.ForeignKey(TLD, related_name='domains', on_delete=models.CASCADE)
     # any other fields you may need for a domain
     class Meta:
-        unique_together = ('name', 'tld',)
-        
-from app.cryptography import Encryptor  # assuming the Encryptor class is defined here
+        unique_together = ('name', 'tld',)        
 
 class ContentLine(UUIDModel):
     main_data = models.ForeignKey(MainData, related_name='content_lines', on_delete=models.CASCADE)
@@ -98,8 +96,17 @@ class ContentLine(UUIDModel):
             if self.line is not None:
                 # Encrypt line
                 self.line = encryptor.encrypt(self.line.strip())
+            else:
+                raise ValueError("Line cannot be None")
+        else:
+            self.email_hash = None
+            self.email = None
+            self.password_hash = None
+            self.password = None
+            return False
 
         super().save(*args, **kwargs)
+        return True
 
     # create a class mehtod for hasing strings with salt
     # lowercase the string to make it case insensitive
@@ -110,14 +117,19 @@ class ContentLine(UUIDModel):
 
     @classmethod
     def search_by_email(cls, email, salt, main_data = None):
-        email_hash = hashlib.sha256(email.lower().encode() + salt).hexdigest()
+        # if email is None return empty queryset
+        if email is None:
+            return cls.objects.none()
+
+        email_hash = cls.hash_string(email, salt)
+
         if main_data is not None:
             return cls.objects.filter(email_hash=email_hash, main_data=main_data)
         return cls.objects.filter(email_hash=email_hash)
 
     @classmethod
     def search_by_password(cls, password, salt, main_data = None):
-        password_hash = hashlib.sha256(password.encode() + salt).hexdigest()
+        password_hash = cls.hash_string(password, salt)
         if main_data is not None:
             return cls.objects.filter(password_hash=password_hash, main_data=main_data)        
         return cls.objects.filter(password_hash=password_hash)

@@ -3,6 +3,7 @@ import time
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from app.lib.intelxapi import intelx
+from app.lib.intelx_search import IntelxSearch
 from django.utils.html import escape
 from pygments import highlight
 from pygments.lexers import JsonLexer
@@ -12,7 +13,7 @@ from app.models import MainData, Relation, Tagsh, ContentLine, TLD, Domain
 from django.db import IntegrityError
 import requests
 from django.db import IntegrityError, transaction
-from app.cryptography import Encryptor
+from app.lib.cryptography import Encryptor
 from django.core.exceptions import ObjectDoesNotExist
 
 def save_tlds():
@@ -43,21 +44,17 @@ class Command(BaseCommand):
         search_term = options['search_term'].strip().lower()
         maxresults = options['maxresults']
         
+        intelx_search = IntelxSearch(search_term, maxresults)
 
         encryptor = Encryptor(settings.ENCRYPTION_KEY + settings.SALT)
-
 
         # save tlds
         save_tlds()
 
-        b = ['leaks.public','dumpster']
-
-        intelx_obj = intelx(settings.INTELX_KEY)
-
         print('Searching for: ' + search_term)
         print('Max results: ' + str(maxresults))
    
-        results = intelx_obj.search(search_term , maxresults=maxresults, buckets=b)
+        results = intelx_search.search()
         
         print(highlight(json.dumps(results, indent=4), JsonLexer(), TerminalFormatter()))
 
@@ -76,11 +73,18 @@ class Command(BaseCommand):
             print(type(result))
 
             relations_data = result.pop('relations', [])
-            tagshs_data = result.pop('tagsh', [])
 
-            # Change 'class' key in each tagsh item to 'class_field'
-            for tagsh in tagshs_data:
-                tagsh['class_field'] = tagsh.pop('class', None)
+            if relations_data is None:
+                relations_data = []
+
+            tagshs_data = result.pop('tagsh', [])
+            
+            if tagshs_data is not None:
+                for tagsh in tagshs_data:
+                    # Change 'class' key in each tagsh item to 'class_field'
+                    tagsh['class_field'] = tagsh.pop('class', None)
+            else:
+                tagshs_data = []
 
             print(highlight(json.dumps(result, indent=4), JsonLexer(), TerminalFormatter()))
 
@@ -115,7 +119,7 @@ class Command(BaseCommand):
                 Tagsh.objects.get_or_create(main_data=main_data, **tagsh_data)
 
             # Get file contents
-            contents = intelx_obj.FILE_VIEW(1, result['media'], result['storageid'], result['bucket'])
+            contents = intelx_search.get_content(result)
 
             # sleep for 3 second to avoid rate limiting
             time.sleep(3)
@@ -130,32 +134,30 @@ class Command(BaseCommand):
                 email, password, domain, tld = None, None, None, None
                 try:
                     
-                    email, password = self.parse_line(line)                    
+                    email, password = intelx_search.parse_line(line)                    
                     
                     # strip the email and password
 
                     # if email is not None strip it else continue
-                    if email is not None:
-                        email = email.strip()
+                    if email is not None and '@' in email and '.' in email:
+                        # remove everything from the email which is not . or @ or alphanumeric
+                        email = re.sub('[^a-zA-Z0-9@.]', '', email)
+                        
+                        # print the line
+                        print(line)
                     else:
                         continue
 
                     # if password is not None strip it
                     if password is not None:
                         password = password.strip()
-                    # document the line below
-                    # get the domain and tld from the email
-                    # if is valid email
-                    if '@' in email and '.' in email:
-                        domain= email.split('@')[1]
-                    else:
-                        continue
 
-                     # print the line
-                    print(line)
+                    # get the domain the email
+                    domain = email.split('@')[-1]
 
                     # get the tld from the domain
                     tld = domain.split('.')[-1]
+                    
                     # Remove non-alphanumeric and non-hyphen characters
                     tld = re.sub('[^a-zA-Z0-9-]', '', tld)
 
@@ -178,11 +180,6 @@ class Command(BaseCommand):
                     
                     # use get_or_create_with_retry to get the domain object
                     domain_obj, created = self.get_or_create_with_retry(Domain, name=domain, tld=tld_obj)
-
-                    # # get the domain and if not exists create it
-                    # domain_obj = Domain.objects.get(name=domain, tld=tld_obj)
-                    # if domain_obj is None:
-                    #     domain_obj = Domain.objects.create(name=domain, tld=tld_obj)
 
                 except ValueError as e:
                     print(e)
@@ -214,14 +211,3 @@ class Command(BaseCommand):
                     except ObjectDoesNotExist:
                         print(f"Unable to get object with kwargs: {kwargs}")
                         raise IntegrityError("Unable to get or create object")
-
-    def parse_line(self, line):
-        separators = [',', ';']
-        for separator in separators:
-            line = line.replace(separator, ':')
-        
-        parts = line.split(':', 2)
-        if len(parts) < 2:
-            raise ValueError(f"Invalid format. The line should be in the format 'email:password' in {line}")
-
-        return parts[0], parts[1]

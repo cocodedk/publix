@@ -31,10 +31,10 @@ class IntelxSearch:
             'pastespro', 
             'darknet.tor', 
             'darknet.i2p', 
-            # 'whois', 
-            # 'usenet', 
+            'whois', 
+            'usenet', 
+            'leaks', 
             # 'leaks', 
-            # 'leaks.bro', 
             # 'bot.logs', 
             # 'wikileaks', 
             # 'sci-hub'

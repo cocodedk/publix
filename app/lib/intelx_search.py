@@ -27,8 +27,8 @@ class IntelxSearch:
         self.b = [
             'leaks.public', 
             'dumpster', 
-            'buckets', 
-            # 'pastespro', 
+            # 'buckets', 
+            'pastespro', 
             # 'darknet.tor', 
             # 'darknet.i2p', 
             # 'whois', 

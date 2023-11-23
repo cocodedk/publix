@@ -34,8 +34,8 @@ class IntelxSearch:
             'whois', 
             'usenet', 
             # 'leaks', 
-            'bot.logs', 
-            # 'wikileaks', 
+            # 'bot.logs', 
+            'wikileaks', 
             # 'sci-hub'
         ]
 

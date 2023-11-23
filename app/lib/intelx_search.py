@@ -26,7 +26,7 @@ class IntelxSearch:
         # Sci-Hub
         self.b = [
             'leaks.public', 
-            'dumpster', 
+            # 'dumpster', 
             # 'buckets', 
             'pastes', 
             'darknet.tor', 

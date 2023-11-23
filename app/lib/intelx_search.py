@@ -11,7 +11,20 @@ class IntelxSearch:
         self.search_term = search_term.strip().lower()
         self.maxresults = maxresults
         self.intelx_obj = intelx(settings.INTELX_KEY)
-        self.b = ['leaks.public','dumpster']
+        # Buckets
+        # PastesPRO
+        # Darknet: TorPRO
+        # Darknet: I2PPRO
+        # WhoisPRO
+        # UsenetPRO
+        # LeaksPRO
+        # Leaks COMBPRO
+        # Bot LogsPRO
+        # WikiLeaks
+        # Public Leaks
+        # Dumpster
+        # Sci-Hub
+        self.b = ['leaks.public', 'dumpster', 'Buckets', 'PastesPRO', 'Darknet: TorPRO', 'Darknet: I2PPRO', 'WhoisPRO', 'UsenetPRO', 'LeaksPRO', 'Leaks COMBPRO', 'Bot LogsPRO', 'WikiLeaks', 'Public Leaks', 'Dumpster', 'Sci-Hub']
 
     def search(self):
         results = self.intelx_obj.search(self.search_term , maxresults=self.maxresults, buckets=self.b)

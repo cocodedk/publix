@@ -32,11 +32,15 @@ class IntelxSearch:
             'darknet.tor', 
             'darknet.i2p', 
             'whois', 
-            'usenet', 
+            'usenet',
+            'leaks.public.wikileaks',
+            'leaks.private.general' ,
+            'leaks.public.general',
+            'leaks.logs'
             # 'leaks', 
             # 'bot.logs', 
             # 'wikileaks', 
-            'sci-hub'
+            # 'sci-hub'
         ]
 
     def search(self):

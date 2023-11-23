@@ -24,7 +24,7 @@ class IntelxSearch:
         # Public Leaks
         # Dumpster
         # Sci-Hub
-        self.b = ['leaks.public', 'dumpster', 'Buckets', 'PastesPRO', 'Darknet: TorPRO', 'Darknet: I2PPRO', 'WhoisPRO', 'UsenetPRO', 'LeaksPRO', 'Leaks COMBPRO', 'Bot LogsPRO', 'WikiLeaks', 'Public Leaks', 'Dumpster', 'Sci-Hub']
+        self.b = ['leaks.public', 'dumpster', 'buckets', 'pastespro', 'darknet.tor', 'darknet.i2p', 'whois', 'usenet', 'leaks', 'leaks.bro', 'bot.logs', 'wikileaks', 'sci-hub']
 
     def search(self):
         results = self.intelx_obj.search(self.search_term , maxresults=self.maxresults, buckets=self.b)

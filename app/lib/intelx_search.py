@@ -33,8 +33,8 @@ class IntelxSearch:
             'darknet.i2p', 
             'whois', 
             'usenet', 
-            'leaks', 
-            # 'bot.logs', 
+            # 'leaks', 
+            'bot.logs', 
             # 'wikileaks', 
             # 'sci-hub'
         ]

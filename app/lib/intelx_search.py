@@ -28,7 +28,7 @@ class IntelxSearch:
             'leaks.public', 
             'dumpster', 
             # 'buckets', 
-            'pastespro', 
+            'pastes', 
             'darknet.tor', 
             'darknet.i2p', 
             'whois', 

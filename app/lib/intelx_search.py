@@ -32,7 +32,7 @@ class IntelxSearch:
             'darknet.tor', 
             'darknet.i2p', 
             'whois', 
-            # 'usenet', 
+            'usenet', 
             # 'leaks', 
             # 'leaks', 
             # 'bot.logs', 

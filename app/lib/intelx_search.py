@@ -35,8 +35,8 @@ class IntelxSearch:
             'usenet', 
             # 'leaks', 
             # 'bot.logs', 
-            'wikileaks', 
-            # 'sci-hub'
+            # 'wikileaks', 
+            'sci-hub'
         ]
 
     def search(self):

@@ -49,7 +49,7 @@ fi
 # Check if pip is installed, if not, install it
 if ! command -v pip &> /dev/null; then
     echo "pip could not be found. Installing pip..."
-    
+
     RUN pip3 install --upgrade pip
 
     $PYTHON -m ensurepip --upgrade
@@ -74,4 +74,4 @@ $PYTHON manage.py makemigrations
 $PYTHON manage.py migrate
 
 # For production
-gunicorn --reload -w 4 -b 0.0.0.0:8000 credsec.wsgi:application
+gunicorn --reload -w 4 -b 0.0.0.0:8000 publix.wsgi:application

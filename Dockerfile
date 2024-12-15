@@ -16,6 +16,11 @@ RUN apt-get update -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install and upgrade pip, then install requirements
+RUN python -m ensurepip --upgrade && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
+
 # add this line to the /home/ubuntu/.bashrc file
 RUN echo "source /code/env311/bin/activate" >> /root/.bashrc
 

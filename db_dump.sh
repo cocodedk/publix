@@ -4,7 +4,7 @@
 # it is a mysqldump command
 # include the password in the command. The password is mysql@@@880202
 # the database name is itsvamf
-# the file name is itsvamfapp.sql 
+# the file name is itsvamfapp.sql
 
 host=mariadb
 
@@ -27,7 +27,7 @@ echo $dump_file
 
 
 # dump the database and add the data and time to the file name and zip it to zip format
-mysqldump -h $host -u credsec -p123credsec123 app --protocol=TCP | gzip -9 > $dump_file
+mysqldump -h $host -u publix -p123publix123 app --protocol=TCP | gzip -9 > $dump_file
 
 # check if the file exists
 if [ -f $dump_file ]; then

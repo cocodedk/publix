@@ -1,6 +1,6 @@
-# CredSec
+# publix
 
-Welcome to the **credsec** repository! This project aims to create a versatile credential search site.
+Welcome to the **publix** repository! This project aims to create a versatile credential search site.
 
 ## Getting Started
 
@@ -32,7 +32,7 @@ To get started, you'll first need to clone the repository. We recommend using SS
 Now, you can clone the repository using the following command:
 
 ```
-git clone git@github.com:babakbandpey/credsec.git
+git clone git@github.com:babakbandpey/publix.git
 ```
 
 ### Install Docker and Docker Compose
@@ -47,7 +47,7 @@ Before you proceed, ensure that both Docker and Docker Compose are installed on 
 1. After cloning the repository, navigate to the project directory:
 
    ```
-   cd credsec
+   cd publix
    ```
 
 2. Run the following command to set up the Docker containers:
@@ -68,4 +68,3 @@ Before you proceed, ensure that both Docker and Docker Compose are installed on 
    ```
    docker-compose down --volumes
    ```
-

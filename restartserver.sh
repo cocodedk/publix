@@ -99,4 +99,4 @@ sleep 4
 echo "**************************"
 echo "Starting the gunicorn"
 echo "**************************"
-gunicorn -w 4 -b 0.0.0.0:8000 credsec.wsgi:application
+gunicorn -w 4 -b 0.0.0.0:8000 publix.wsgi:application

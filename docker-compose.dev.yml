@@ -7,22 +7,22 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123pass123word123
       MYSQL_DATABASE: app
-      MYSQL_USER: credsec
-      MYSQL_PASSWORD: 123credsec123
+      MYSQL_USER: publix
+      MYSQL_PASSWORD: 123publix123
       TIMEZONE: Europe/Copenhagen
     ports:
       - 3306:3306
     expose:
       - 3306
     networks:
-      - credsec_network
+      - publix_network
     hostname: mariadb
     restart: on-failure
-    
+
   web:
     build: .
     working_dir: /code
-    command: 
+    command:
       - /bin/bash
       - -c
       - |
@@ -33,11 +33,11 @@ services:
       - 35729:35729
       - 80:80
     networks:
-      - credsec_network
+      - publix_network
     depends_on:
       - mariadb
     restart: on-failure
     hostname: web
-  
+
 networks:
-  credsec_network:
+  publix_network:

@@ -1,0 +1,17 @@
+{
+  "name": "publix",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "lint": "cd frontend && npm run lint",
+    "install": "cd frontend && npm install",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "db:init": "./scripts/init-db.sh"
+  },
+  "description": "Modern credential search platform with Next.js and Neo4j"
+}

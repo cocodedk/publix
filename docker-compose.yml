@@ -1,15 +1,6 @@
-version: "3.9"
 services:
-  web:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    depends_on:
-      - neo4j
   neo4j:
-    image: neo4j:5.15
+    image: neo4j:5.26
     environment:
       - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
     ports:

@@ -25,10 +25,18 @@ import {
     Select,
     FormControl,
     InputLabel,
-    Chip
+    Chip,
+    Collapse,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Checkbox,
+    FormControlLabel
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { SearchResponse, SearchResult } from "../lib/types";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { SearchResponse, SearchResult, SearchFilters } from "../lib/types";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -42,6 +50,17 @@ export default function Home() {
     const [sortBy, setSortBy] = useState("date");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [filters, setFilters] = useState<SearchFilters>({
+        dateFrom: "",
+        dateTo: "",
+        domain: "",
+        tld: "",
+        emailDomain: "",
+        hasPassword: undefined,
+        source: undefined,
+        verified: undefined
+    });
     const perPage = 20;
 
     // Keyboard shortcut for search (Ctrl+K)
@@ -67,15 +86,25 @@ export default function Home() {
         setError(null);
 
         try {
-            const { data } = await axios.get<SearchResponse>("/api/search", {
-                params: {
-                    q: q.trim(),
-                    page: p,
-                    perPage,
-                    sortBy,
-                    sortOrder
-                }
-            });
+            const params: any = {
+                q: q.trim(),
+                page: p,
+                perPage,
+                sortBy,
+                sortOrder
+            };
+
+            // Add filters to params
+            if (filters.dateFrom) params.dateFrom = filters.dateFrom;
+            if (filters.dateTo) params.dateTo = filters.dateTo;
+            if (filters.domain) params.domain = filters.domain;
+            if (filters.tld) params.tld = filters.tld;
+            if (filters.emailDomain) params.emailDomain = filters.emailDomain;
+            if (filters.hasPassword !== undefined) params.hasPassword = filters.hasPassword;
+            if (filters.source) params.source = filters.source;
+            if (filters.verified !== undefined) params.verified = filters.verified;
+
+            const { data } = await axios.get<SearchResponse>("/api/search", { params });
             setResults(data.results || []);
             setTotal(data.total || 0);
             setPage(data.page || p);
@@ -124,6 +153,34 @@ export default function Home() {
         window.open(url, "_blank");
         toast.success(`Exporting as ${format.toUpperCase()}`);
     };
+
+    const handleFilterChange = (key: keyof SearchFilters, value: any) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            dateFrom: "",
+            dateTo: "",
+            domain: "",
+            tld: "",
+            emailDomain: "",
+            hasPassword: undefined,
+            source: undefined,
+            verified: undefined
+        });
+        if (query.trim()) fetchResults(query, 1);
+    };
+
+    const applyFilters = () => {
+        if (query.trim()) {
+            fetchResults(query, 1);
+        }
+    };
+
+    const activeFiltersCount = Object.values(filters).filter(v =>
+        v !== undefined && v !== "" && v !== null
+    ).length;
 
     return (
         <>
@@ -217,6 +274,185 @@ export default function Home() {
                             )}
                         </Stack>
                     </form>
+
+                    {/* Advanced Filters */}
+                    <Accordion expanded={filtersOpen} onChange={(_: React.SyntheticEvent, expanded: boolean) => setFiltersOpen(expanded)} sx={{ mt: 2 }}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                                <FilterListIcon />
+                                <Typography>Advanced Filters</Typography>
+                                {activeFiltersCount > 0 && (
+                                    <Chip label={activeFiltersCount} size="small" color="primary" />
+                                )}
+                            </Stack>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Stack spacing={2}>
+                                <Stack direction="row" spacing={2} flexWrap="wrap">
+                                    <TextField
+                                        label="Date From"
+                                        type="date"
+                                        size="small"
+                                        value={filters.dateFrom}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange("dateFrom", e.target.value)}
+                                        InputLabelProps={{ shrink: true }}
+                                        sx={{ minWidth: 150 }}
+                                    />
+                                    <TextField
+                                        label="Date To"
+                                        type="date"
+                                        size="small"
+                                        value={filters.dateTo}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange("dateTo", e.target.value)}
+                                        InputLabelProps={{ shrink: true }}
+                                        sx={{ minWidth: 150 }}
+                                    />
+                                    <TextField
+                                        label="Domain"
+                                        size="small"
+                                        value={filters.domain}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange("domain", e.target.value)}
+                                        sx={{ minWidth: 150 }}
+                                    />
+                                    <TextField
+                                        label="TLD"
+                                        size="small"
+                                        value={filters.tld}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange("tld", e.target.value)}
+                                        sx={{ minWidth: 100 }}
+                                    />
+                                    <TextField
+                                        label="Email Domain"
+                                        size="small"
+                                        value={filters.emailDomain}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange("emailDomain", e.target.value)}
+                                        placeholder="example.com"
+                                        sx={{ minWidth: 150 }}
+                                    />
+                                </Stack>
+                                <Stack direction="row" spacing={2} flexWrap="wrap">
+                                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                                        <InputLabel>Source</InputLabel>
+                                        <Select
+                                            value={filters.source || ""}
+                                            label="Source"
+                                            onChange={(e: any) => handleFilterChange("source", e.target.value || undefined)}
+                                        >
+                                            <MenuItem value="">All</MenuItem>
+                                            <MenuItem value="intelx">IntelX</MenuItem>
+                                            <MenuItem value="manual">Manual</MenuItem>
+                                            <MenuItem value="import">Import</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={filters.hasPassword === true}
+                                                indeterminate={filters.hasPassword === undefined}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    if (e.target.checked) {
+                                                        handleFilterChange("hasPassword", true);
+                                                    } else {
+                                                        handleFilterChange("hasPassword", undefined);
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                        label="Has Password"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={filters.verified === true}
+                                                indeterminate={filters.verified === undefined}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    if (e.target.checked) {
+                                                        handleFilterChange("verified", true);
+                                                    } else {
+                                                        handleFilterChange("verified", undefined);
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                        label="Verified"
+                                    />
+                                </Stack>
+                                <Stack direction="row" spacing={2}>
+                                    <Button variant="contained" onClick={applyFilters} size="small">
+                                        Apply Filters
+                                    </Button>
+                                    <Button variant="outlined" onClick={clearFilters} size="small">
+                                        Clear Filters
+                                    </Button>
+                                </Stack>
+                                {activeFiltersCount > 0 && (
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Active filters: {activeFiltersCount}
+                                        </Typography>
+                                        <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap">
+                                            {filters.dateFrom && (
+                                                <Chip
+                                                    label={`From: ${filters.dateFrom}`}
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("dateFrom", "")}
+                                                />
+                                            )}
+                                            {filters.dateTo && (
+                                                <Chip
+                                                    label={`To: ${filters.dateTo}`}
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("dateTo", "")}
+                                                />
+                                            )}
+                                            {filters.domain && (
+                                                <Chip
+                                                    label={`Domain: ${filters.domain}`}
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("domain", "")}
+                                                />
+                                            )}
+                                            {filters.tld && (
+                                                <Chip
+                                                    label={`TLD: ${filters.tld}`}
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("tld", "")}
+                                                />
+                                            )}
+                                            {filters.emailDomain && (
+                                                <Chip
+                                                    label={`Email Domain: ${filters.emailDomain}`}
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("emailDomain", "")}
+                                                />
+                                            )}
+                                            {filters.source && (
+                                                <Chip
+                                                    label={`Source: ${filters.source}`}
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("source", undefined)}
+                                                />
+                                            )}
+                                            {filters.hasPassword === true && (
+                                                <Chip
+                                                    label="Has Password"
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("hasPassword", undefined)}
+                                                />
+                                            )}
+                                            {filters.verified === true && (
+                                                <Chip
+                                                    label="Verified"
+                                                    size="small"
+                                                    onDelete={() => handleFilterChange("verified", undefined)}
+                                                />
+                                            )}
+                                        </Stack>
+                                    </Box>
+                                )}
+                            </Stack>
+                        </AccordionDetails>
+                    </Accordion>
 
                     {error && (
                         <Alert severity="error" sx={{ mt: 2 }} onClose={() => setError(null)}>

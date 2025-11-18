@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
 import { CreateContentRequest, ContentResponse, ApiError } from "../../../lib/types";
+import { calculateQualityScore, validateEmail, validateDomain, validateTLD } from "../../../lib/qualityScoring";
 import dotenv from "dotenv";
 import crypto from "crypto";
 
@@ -38,6 +39,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         // Generate mainDataId if not provided
         const mainDataId = body.mainDataId || `content-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
+        // Calculate quality score
+        const qualityScore = calculateQualityScore({
+            hasPassword: !!body.password,
+            hasValidEmail: validateEmail(body.email),
+            hasValidDomain: validateDomain(body.domain),
+            hasValidTLD: validateTLD(body.tld),
+            lineLength: body.line.length,
+            source: "manual",
+            verified: false,
+            age: 0 // New entry
+        });
+
         // Create or get TLD
         // Create or get Domain
         // Create ContentLine
@@ -53,7 +66,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 mainDataId: $mainDataId,
                 createdAt: datetime(),
                 source: "manual",
-                verified: false
+                verified: false,
+                qualityScore: $qualityScore
             })
             MERGE (d)-[:HAS_CONTENT]->(c)
             RETURN c, d.name as domain, t.name as tld
@@ -66,7 +80,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             encryptedPassword,
             encryptedLine,
             emailHash,
-            mainDataId
+            mainDataId,
+            qualityScore
         });
 
         if (results.length === 0) {

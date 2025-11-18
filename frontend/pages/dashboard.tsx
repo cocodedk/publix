@@ -22,6 +22,7 @@ interface DashboardStats {
     bySource: { source: string; count: number }[];
     byTLD: { tld: string; count: number }[];
     recentActivity: number;
+    averageQualityScore: number;
 }
 
 export default function Dashboard() {
@@ -34,25 +35,8 @@ export default function Dashboard() {
 
     const fetchStats = async () => {
         try {
-            // Get total count
-            const totalRes = await axios.get("/api/content/list?perPage=1");
-            const total = totalRes.data.total || 0;
-
-            // Get domain/TLD stats (simplified - would need dedicated endpoint)
-            const stats: DashboardStats = {
-                totalEntries: total,
-                totalDomains: 0, // Would need aggregation query
-                totalTLDs: 0, // Would need aggregation query
-                bySource: [
-                    { source: "intelx", count: 0 },
-                    { source: "manual", count: 0 },
-                    { source: "import", count: 0 }
-                ],
-                byTLD: [],
-                recentActivity: 0
-            };
-
-            setStats(stats);
+            const { data } = await axios.get<DashboardStats>("/api/dashboard/stats");
+            setStats(data);
         } catch (error) {
             console.error("Failed to fetch stats:", error);
         } finally {
@@ -129,6 +113,18 @@ export default function Dashboard() {
                                     </Typography>
                                     <Typography variant="h4">
                                         {stats.recentActivity}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <Card>
+                                <CardContent>
+                                    <Typography color="textSecondary" gutterBottom>
+                                        Avg Quality Score
+                                    </Typography>
+                                    <Typography variant="h4">
+                                        {stats.averageQualityScore.toFixed(1)}
                                     </Typography>
                                 </CardContent>
                             </Card>

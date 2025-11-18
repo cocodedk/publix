@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { intelxClient } from "../../../lib/intelxClient";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
+import { calculateQualityScore, validateEmail, validateDomain, validateTLD, calculateAgeInDays } from "../../../lib/qualityScoring";
 import { ApiError } from "../../../lib/types";
 import dotenv from "dotenv";
 import crypto from "crypto";
@@ -156,6 +157,22 @@ export default async function handler(
                         `;
                         const existing = await neo4jClient.run(existingQuery, { emailHash });
 
+                        // Calculate quality score
+                        const existingAge = existing.length > 0 && existing[0].c?.createdAt
+                            ? calculateAgeInDays(existing[0].c.createdAt)
+                            : 0;
+
+                        const qualityScore = calculateQualityScore({
+                            hasPassword: !!credential.password,
+                            hasValidEmail: validateEmail(credential.email),
+                            hasValidDomain: validateDomain(credential.domain),
+                            hasValidTLD: validateTLD(credential.tld),
+                            lineLength: credential.line.length,
+                            source: "intelx",
+                            verified: false,
+                            age: existingAge
+                        });
+
                         if (existing.length > 0) {
                             // Update existing
                             const updateQuery = `
@@ -164,14 +181,16 @@ export default async function handler(
                                     c.password = $encryptedPassword,
                                     c.line = $encryptedLine,
                                     c.lastSyncedAt = datetime(),
-                                    c.source = "intelx"
+                                    c.source = "intelx",
+                                    c.qualityScore = $qualityScore
                                 RETURN c
                             `;
                             await neo4jClient.run(updateQuery, {
                                 emailHash,
                                 encryptedEmail,
                                 encryptedPassword,
-                                encryptedLine
+                                encryptedLine,
+                                qualityScore
                             });
                         } else {
                             // Create new
@@ -187,7 +206,8 @@ export default async function handler(
                                     mainDataId: $mainDataId,
                                     createdAt: datetime(),
                                     lastSyncedAt: datetime(),
-                                    source: "intelx"
+                                    source: "intelx",
+                                    qualityScore: $qualityScore
                                 })
                                 MERGE (d)-[:HAS_CONTENT]->(c)
                                 RETURN c
@@ -199,7 +219,8 @@ export default async function handler(
                                 encryptedPassword,
                                 encryptedLine,
                                 emailHash,
-                                mainDataId
+                                mainDataId,
+                                qualityScore
                             });
                         }
 

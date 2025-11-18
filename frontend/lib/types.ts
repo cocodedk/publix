@@ -14,6 +14,12 @@ export interface ContentLineNode {
     line: string; // encrypted
     email_hash: string;
     mainDataId: string;
+    createdAt?: string;
+    updatedAt?: string;
+    lastSyncedAt?: string;
+    source?: "intelx" | "manual" | "import";
+    qualityScore?: number;
+    verified?: boolean;
 }
 
 export interface Domain {
@@ -94,4 +100,21 @@ export interface ApiError {
     error: string;
     message?: string;
     details?: any;
+}
+
+export interface SearchFilters {
+    dateFrom?: string;
+    dateTo?: string;
+    domain?: string;
+    tld?: string;
+    emailDomain?: string;
+    hasPassword?: boolean;
+    source?: "intelx" | "manual" | "import";
+    verified?: boolean;
+}
+
+export interface BulkOperationRequest {
+    ids: string[];
+    operation: "delete" | "update" | "tag";
+    data?: any;
 }

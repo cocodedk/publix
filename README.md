@@ -8,7 +8,7 @@
 - **Back-end API**: Next.js API routes using the Neo4j driver
 - **Database**: Neo4j (graph database) running in Docker
 - **Encryption**: Node.js `crypto` module (AES-256-GCM) for secure storage
-- **Features**: Search, Create, Read, Update, Delete operations with pagination and error handling
+- **Features**: Search, Create, Read, Update, Delete operations with pagination, error handling, IntelX integration, advanced filtering, export capabilities, dashboard analytics, authentication, and more
 
 ## Prerequisites
 
@@ -38,6 +38,14 @@
    # Encryption settings (same values used by the original Django app)
    ENCRYPTION_KEY=your_32_byte_key_base64
    SALT=your_salt_base64
+
+   # IntelX API (optional, for automated data ingestion)
+   INTELX_API_KEY=your_intelx_api_key
+   INTELX_API_URL=https://2.intelx.io
+
+   # NextAuth (optional, for authentication)
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your_nextauth_secret
    ```
 
 3. **Start Neo4j with Docker Compose**
@@ -216,9 +224,13 @@ Bulk import content entries.
 
 ## Frontend Pages
 
-- **`/`**: Search page with results table and pagination
+- **`/`**: Search page with results table, pagination, sorting, export, and copy buttons
+- **`/dashboard`**: Analytics dashboard with charts and statistics
+- **`/graph`**: Graph visualization of data relationships
+- **`/api-docs`**: Interactive API documentation
 - **`/create`**: Form to create new entries
 - **`/edit/[id]`**: Edit or delete existing entries
+- **`/auth/signin`**: User authentication page
 
 ## Development Workflow
 
@@ -246,6 +258,48 @@ Or use Docker Compose:
 docker-compose up --build
 ```
 
+## New Features
+
+### Phase 1: IntelX Integration
+- **IntelX API Client** (`frontend/lib/intelxClient.ts`): Full integration with IntelX API for automated breach data ingestion
+- **IntelX Sync Endpoint** (`/api/intelx/sync`): Automated synchronization of credentials from IntelX
+- **IntelX Search Proxy** (`/api/intelx/search`): Direct search through IntelX API
+
+### Phase 2: Advanced Search & Filtering
+- **Enhanced Search API**: Date range filtering, domain/TLD filters, email domain filter, password presence filter, source filtering
+- **Sorting Options**: Sort by date, email, or domain (ascending/descending)
+- **Export Functionality**: CSV and JSON export endpoints (`/api/export/csv`, `/api/export/json`)
+
+### Phase 3: Data Management
+- **Bulk Operations** (`/api/content/bulk`): Bulk delete, update, and tag operations
+- **CSV Import**: Enhanced import endpoint with CSV file parsing support
+- **Data Validation** (`frontend/lib/validation.ts`): Zod-based validation utilities
+
+### Phase 4: UI/UX Enhancements
+- **Dashboard** (`/dashboard`): Analytics dashboard with charts and statistics
+- **Copy Buttons**: Quick copy-to-clipboard for email and password fields
+- **Toast Notifications**: User-friendly notifications using react-toastify
+- **Keyboard Shortcuts**: Ctrl+K to focus search input
+- **Sorting UI**: Dropdown controls for sorting search results
+- **Export Buttons**: Direct export to CSV/JSON from search results
+
+### Phase 5: Authentication & Security
+- **NextAuth Integration**: User authentication with credentials provider
+- **Auth Utilities** (`frontend/lib/auth.ts`): Role-based access control helpers
+- **Sign In Page** (`/auth/signin`): User authentication interface
+- **User Schema**: Neo4j User nodes with email and role support
+
+### Phase 6: Advanced Features
+- **Graph Visualization** (`/graph`): Data relationship visualization (TLD → Domain → ContentLine)
+- **API Documentation** (`/api-docs`): Interactive API documentation page
+- **Health Monitoring** (`/api/health`): System health check endpoint
+- **Backup System** (`/api/backup`): Database backup functionality
+
+### Phase 7: Database Schema Enhancements
+- **Timestamps**: `createdAt`, `updatedAt`, `lastSyncedAt` fields on ContentLine nodes
+- **Metadata**: `source` (intelx/manual/import), `qualityScore`, `verified` fields
+- **Indexes**: Additional indexes for date ranges and source filtering
+
 ## Environment Variables
 
 See `.env.example` for all required environment variables:
@@ -255,6 +309,10 @@ See `.env.example` for all required environment variables:
 - `NEO4J_PASSWORD`: Neo4j password
 - `ENCRYPTION_KEY`: 32-byte encryption key (base64 encoded)
 - `SALT`: Salt value for hashing (base64 encoded)
+- `INTELX_API_KEY`: IntelX API key (optional)
+- `INTELX_API_URL`: IntelX API URL (default: `https://2.intelx.io`)
+- `NEXTAUTH_URL`: NextAuth callback URL (optional)
+- `NEXTAUTH_SECRET`: NextAuth secret (optional)
 
 ## License
 

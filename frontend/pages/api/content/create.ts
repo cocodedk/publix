@@ -50,7 +50,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 password: $encryptedPassword,
                 line: $encryptedLine,
                 email_hash: $emailHash,
-                mainDataId: $mainDataId
+                mainDataId: $mainDataId,
+                createdAt: datetime(),
+                source: "manual",
+                verified: false
             })
             MERGE (d)-[:HAS_CONTENT]->(c)
             RETURN c, d.name as domain, t.name as tld

@@ -77,6 +77,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             return res.status(400).json({ error: "No fields to update" });
         }
 
+        updates.push("c.updatedAt = datetime()");
+
         const updateQuery = `
             MATCH (c:ContentLine {mainDataId: $id})
             SET ${updates.join(", ")}

@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { UpdateContentRequest, ContentResponse } from "../../lib/types";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditPage() {
     const router = useRouter();
@@ -84,6 +86,7 @@ export default function EditPage() {
 
         try {
             await axios.put(`/api/content/update?id=${id}`, formData);
+            toast.success("Entry updated successfully");
             router.push("/");
         } catch (err) {
             const axiosError = err as AxiosError<{ error: string; message?: string }>;
@@ -111,6 +114,7 @@ export default function EditPage() {
 
         try {
             await axios.delete(`/api/content/delete?id=${id}`);
+            toast.success("Entry deleted successfully");
             router.push("/");
         } catch (err) {
             const axiosError = err as AxiosError<{ error: string; message?: string }>;
@@ -232,6 +236,17 @@ export default function EditPage() {
                     </form>
                 </Paper>
             </Container>
+            <ToastContainer
+                position="bottom-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </>
     );
 }

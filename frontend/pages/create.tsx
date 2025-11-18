@@ -16,6 +16,8 @@ import {
     Link
 } from "@mui/material";
 import { CreateContentRequest, ContentResponse } from "../lib/types";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function CreatePage() {
     const router = useRouter();
@@ -52,6 +54,7 @@ export default function CreatePage() {
 
         try {
             const { data } = await axios.post<ContentResponse>("/api/content/create", formData);
+            toast.success("Entry created successfully");
             router.push(`/edit/${data.id}`);
         } catch (err) {
             const axiosError = err as AxiosError<{ error: string; message?: string }>;
@@ -60,6 +63,7 @@ export default function CreatePage() {
                 || axiosError.message
                 || "An error occurred while creating the entry";
             setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -167,6 +171,17 @@ export default function CreatePage() {
                     </form>
                 </Paper>
             </Container>
+            <ToastContainer
+                position="bottom-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </>
     );
 }

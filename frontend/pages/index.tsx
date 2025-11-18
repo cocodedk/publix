@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import {
     Container,
@@ -19,9 +19,18 @@ import {
     Toolbar,
     Link,
     Skeleton,
-    Stack
+    Stack,
+    IconButton,
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel,
+    Chip
 } from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { SearchResponse, SearchResult } from "../lib/types";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
     const [query, setQuery] = useState("");
@@ -30,7 +39,23 @@ export default function Home() {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
+    const [sortBy, setSortBy] = useState("date");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const perPage = 20;
+
+    // Keyboard shortcut for search (Ctrl+K)
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+                e.preventDefault();
+                const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+                searchInput?.focus();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
 
     const fetchResults = async (q: string, p = 1) => {
         if (!q.trim()) {
@@ -43,7 +68,13 @@ export default function Home() {
 
         try {
             const { data } = await axios.get<SearchResponse>("/api/search", {
-                params: { q: q.trim(), page: p, perPage }
+                params: {
+                    q: q.trim(),
+                    page: p,
+                    perPage,
+                    sortBy,
+                    sortOrder
+                }
             });
             setResults(data.results || []);
             setTotal(data.total || 0);
@@ -82,6 +113,18 @@ export default function Home() {
         }
     };
 
+    const handleCopy = (text: string, type: string) => {
+        navigator.clipboard.writeText(text);
+        toast.success(`${type} copied to clipboard`);
+    };
+
+    const handleExport = async (format: "csv" | "json") => {
+        const ids = selectedIds.length > 0 ? selectedIds.join(",") : undefined;
+        const url = `/api/export/${format}${ids ? `?ids=${ids}` : ""}`;
+        window.open(url, "_blank");
+        toast.success(`Exporting as ${format.toUpperCase()}`);
+    };
+
     return (
         <>
             <AppBar position="static">
@@ -89,6 +132,15 @@ export default function Home() {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Publix - Credential Search
                     </Typography>
+                    <Link href="/dashboard" color="inherit" sx={{ textDecoration: "none", mr: 2 }}>
+                        Dashboard
+                    </Link>
+                    <Link href="/graph" color="inherit" sx={{ textDecoration: "none", mr: 2 }}>
+                        Graph
+                    </Link>
+                    <Link href="/api-docs" color="inherit" sx={{ textDecoration: "none", mr: 2 }}>
+                        API Docs
+                    </Link>
                     <Link href="/create" color="inherit" sx={{ textDecoration: "none", mr: 2 }}>
                         Create Entry
                     </Link>
@@ -114,6 +166,55 @@ export default function Home() {
                             >
                                 {loading ? <CircularProgress size={24} /> : "Search"}
                             </Button>
+                        </Stack>
+                        <Stack direction="row" spacing={2} sx={{ mt: 2 }} alignItems="center">
+                            <FormControl size="small" sx={{ minWidth: 120 }}>
+                                <InputLabel>Sort By</InputLabel>
+                                <Select
+                                    value={sortBy}
+                                    label="Sort By"
+                                    onChange={(e: any) => {
+                                        setSortBy(e.target.value);
+                                        if (query.trim()) fetchResults(query, 1);
+                                    }}
+                                >
+                                    <MenuItem value="date">Date</MenuItem>
+                                    <MenuItem value="email">Email</MenuItem>
+                                    <MenuItem value="domain">Domain</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <FormControl size="small" sx={{ minWidth: 100 }}>
+                                <InputLabel>Order</InputLabel>
+                                <Select
+                                    value={sortOrder}
+                                    label="Order"
+                                    onChange={(e: any) => {
+                                        setSortOrder(e.target.value as "asc" | "desc");
+                                        if (query.trim()) fetchResults(query, 1);
+                                    }}
+                                >
+                                    <MenuItem value="asc">Ascending</MenuItem>
+                                    <MenuItem value="desc">Descending</MenuItem>
+                                </Select>
+                            </FormControl>
+                            {results.length > 0 && (
+                                <>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={() => handleExport("csv")}
+                                    >
+                                        Export CSV
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={() => handleExport("json")}
+                                    >
+                                        Export JSON
+                                    </Button>
+                                </>
+                            )}
                         </Stack>
                     </form>
 
@@ -160,8 +261,34 @@ export default function Home() {
                                                 "&:hover": { backgroundColor: "action.selected" }
                                             }}
                                         >
-                                            <TableCell>{r.email}</TableCell>
-                                            <TableCell>{r.password ?? "-"}</TableCell>
+                                            <TableCell>
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <span>{r.email}</span>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleCopy(r.email, "Email")}
+                                                        sx={{ p: 0.5 }}
+                                                    >
+                                                        <ContentCopyIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Stack>
+                                            </TableCell>
+                                            <TableCell>
+                                                {r.password ? (
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <span>••••••••</span>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => handleCopy(r.password!, "Password")}
+                                                            sx={{ p: 0.5 }}
+                                                        >
+                                                            <ContentCopyIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Stack>
+                                                ) : (
+                                                    "-"
+                                                )}
+                                            </TableCell>
                                             <TableCell sx={{ maxWidth: 400, wordBreak: "break-word" }}>
                                                 {r.line}
                                             </TableCell>
@@ -206,6 +333,17 @@ export default function Home() {
                     )}
                 </Paper>
             </Container>
+            <ToastContainer
+                position="bottom-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </>
     );
 }

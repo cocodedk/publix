@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../lib/neo4jClient";
 import { Encryptor } from "../../lib/encryptor";
-import { ImportRequest, ImportResponse, ApiError } from "../../lib/types";
+import { ImportRequest, ImportResponse, ApiError, ImportItem } from "../../lib/types";
 import dotenv from "dotenv";
 import crypto from "crypto";
 
@@ -9,13 +9,59 @@ dotenv.config();
 
 const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.env.SALT || ""));
 
+function parseCSV(csvText: string): ImportItem[] {
+    const lines = csvText.split("\n").filter(line => line.trim());
+    if (lines.length < 2) return [];
+
+    const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+    const items: ImportItem[] = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(",").map(v => v.trim().replace(/^"|"$/g, ""));
+        const item: any = {};
+
+        headers.forEach((header, index) => {
+            item[header] = values[index] || "";
+        });
+
+        // Try to map common CSV formats
+        const email = item.email || item["e-mail"] || item["email address"] || "";
+        const password = item.password || item.pass || item.pwd || null;
+        const line = item.line || item.data || item.content || `${email}:${password || ""}`;
+        const domain = item.domain || (email.includes("@") ? email.split("@")[1].split(".")[0] : "");
+        const tld = item.tld || (email.includes("@") ? email.split("@")[1].split(".").slice(-1)[0] : "com");
+
+        if (email && email.includes("@")) {
+            items.push({
+                email,
+                password: password || null,
+                line,
+                domain: domain || email.split("@")[1].split(".").slice(0, -1).join(".") || "",
+                tld: tld || email.split("@")[1].split(".").slice(-1)[0] || "com"
+            });
+        }
+    }
+
+    return items;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ImportResponse | ApiError>) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
 
     try {
-        const body: ImportRequest = req.body;
+        let body: ImportRequest;
+
+        // Check if it's a CSV upload
+        if (req.headers["content-type"]?.includes("text/csv") ||
+            (req.body as string).includes(",") && (req.body as string).includes("\n")) {
+            const csvText = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+            const items = parseCSV(csvText);
+            body = { items };
+        } else {
+            body = req.body as ImportRequest;
+        }
 
         if (!body.items || !Array.isArray(body.items)) {
             return res.status(400).json({
@@ -64,7 +110,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                         SET c.email = $encryptedEmail,
                             c.password = $encryptedPassword,
                             c.line = $encryptedLine,
-                            c.email_hash = $emailHash
+                            c.email_hash = $emailHash,
+                            c.createdAt = datetime(),
+                            c.source = "import"
                         MERGE (d)-[:HAS_CONTENT]->(c)
                         RETURN c
                     `;

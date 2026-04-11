@@ -1,6 +1,8 @@
 # publix
 
-**Modern credential search platform** built with **Next.js (TypeScript)** and **Neo4j**. The application provides a fast, searchable UI for encrypted email/password data with full CRUD operations.
+**Private breach notification service** — enter your email, receive a confidential report in your inbox. Results are never shown in the browser, proving you own the address.
+
+Built with **Next.js (TypeScript)**, **Neo4j**, and **AES-256-GCM** encryption. Queries XposedOrNot and LeakCheck on the free tier; HIBP Pro, Dehashed, and IntelX on the paid tier.
 
 ## Website
 

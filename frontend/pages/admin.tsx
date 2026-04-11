@@ -562,7 +562,7 @@ export default function Home() {
                                 Enter a search query to begin
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                Search by TLD (e.g., "com"), domain, or email
+                                Search by TLD (e.g., &quot;com&quot;), domain, or email
                             </Typography>
                         </Box>
                     )}

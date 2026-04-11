@@ -41,7 +41,6 @@ class Neo4jClient {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async run<T = any>(query: string, params: { [key: string]: unknown } = {}): Promise<T[]> {
         const driver = this.getDriver();
         const session = driver.session();

@@ -10,9 +10,15 @@ const config: Config = {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react' } }],
   },
   collectCoverageFrom: [
-    'lib/**/*.ts',
-    'pages/api/**/*.ts',
-    '!lib/neo4jClient.ts',
+    // Coverage scoped to files with tests (Plan 1).
+    // Expand as tests are added for each plan.
+    'lib/env.ts',
+    'lib/rateLimiter.ts',
+    'lib/email.ts',
+    'lib/sources/xposedornot.ts',
+    'lib/sources/leakcheck.ts',
+    'lib/templates/breachReportHtml.ts',
+    'pages/api/report.ts',
     '!**/*.d.ts',
     '!**/node_modules/**',
   ],

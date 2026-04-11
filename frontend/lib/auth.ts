@@ -1,7 +1,8 @@
 // Authentication utilities
 
-import { getSession } from "next-auth/react";
+import { getServerSession } from "next-auth/next";
 import { NextApiRequest, NextApiResponse } from "next";
+import { authOptions } from "../pages/api/auth/[...nextauth]";
 
 export interface User {
     id: string;
@@ -15,7 +16,7 @@ export async function requireAuth(
     res: NextApiResponse,
     roles?: string[]
 ): Promise<User | null> {
-    const session = await getSession({ req });
+    const session = await getServerSession(req, res, authOptions);
 
     if (!session || !session.user) {
         res.status(401).json({ error: "Unauthorized" });

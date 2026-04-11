@@ -6,7 +6,7 @@ const requiredEnvSchema = z.object({
   NEO4J_PASSWORD: z.string().min(1),
   ENCRYPTION_KEY: z.string().min(1),
   SALT: z.string().min(1),
-  NEXTAUTH_SECRET: z.string().min(1),
+  NEXTAUTH_SECRET: z.string().min(32),
   RESEND_API_KEY: z.string().min(1),
   RESEND_FROM_EMAIL: z.string().email(),
 })

@@ -9,10 +9,12 @@ export default withAuth(
         const path = req.nextUrl.pathname
         const protectedPaths = [
           '/admin',
+          '/api/content/list', '/api/content/read',
           '/api/content/create', '/api/content/update',
           '/api/content/delete', '/api/content/bulk',
           '/api/import', '/api/backup', '/api/intelx/sync',
-          '/api/export',
+          '/api/intelx/search', '/api/dashboard',
+          '/api/export', '/api/search',
           '/create', '/edit', '/dashboard',
         ]
         if (protectedPaths.some(p => path.startsWith(p))) return token?.role === 'admin'
@@ -30,6 +32,9 @@ export const config = {
     '/api/import',
     '/api/backup/:path*',
     '/api/intelx/sync',
+    '/api/intelx/search',
+    '/api/dashboard/:path*',
+    '/api/search',
     '/api/export/:path*',
     '/create', '/edit/:path*', '/dashboard',
   ],

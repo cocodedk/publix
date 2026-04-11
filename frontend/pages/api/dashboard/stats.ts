@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { ApiError } from "../../../lib/types";
+import { requireAuth } from "../../../lib/auth";
 
 interface DashboardStats {
     totalEntries: number;
@@ -19,6 +20,9 @@ export default async function handler(
     if (req.method !== "GET") {
         return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
 
     try {
         // Get total entries count

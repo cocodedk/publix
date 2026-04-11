@@ -1,7 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { neo4jClient } from "../../../lib/neo4jClient";
-import crypto from "crypto";
+import bcrypt from "bcrypt";
+import { checkRateLimit } from "../../../lib/rateLimiter";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -16,36 +17,45 @@ export const authOptions: NextAuthOptions = {
                     return null;
                 }
 
-                try {
-                    // Hash password for comparison
-                    const passwordHash = crypto
-                        .createHash("sha256")
-                        .update(credentials.password)
-                        .digest("hex");
+                const rateLimit = await checkRateLimit(credentials.email, "auth");
+                if (!rateLimit.allowed) {
+                    throw new Error("Too many login attempts");
+                }
 
-                    // Check user in Neo4j
+                try {
+                    // Fetch user by email only; compare password with bcrypt
                     const query = `
-                        MATCH (u:User {email: $email, passwordHash: $passwordHash})
+                        MATCH (u:User {email: $email})
                         RETURN u
                     `;
                     const results = await neo4jClient.run(query, {
                         email: credentials.email,
-                        passwordHash
                     });
 
-                    if (results.length > 0) {
-                        const user = results[0].u;
-                        return {
-                            id: user.id || user.email,
-                            email: user.email,
-                            name: user.name || user.email,
-                            role: user.role || "user"
-                        };
+                    if (results.length === 0) {
+                        return null;
                     }
 
-                    return null;
+                    const user = results[0].u;
+                    const passwordMatch = await bcrypt.compare(
+                        credentials.password,
+                        user.passwordHash
+                    );
+
+                    if (!passwordMatch) {
+                        return null;
+                    }
+
+                    return {
+                        id: user.id || user.email,
+                        email: user.email,
+                        name: user.name || user.email,
+                        role: user.role || "user"
+                    };
                 } catch (error) {
-                    console.error("Auth error:", error);
+                    if (error instanceof Error && error.message === "Too many login attempts") {
+                        throw error;
+                    }
                     return null;
                 }
             }

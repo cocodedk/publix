@@ -11,7 +11,7 @@ const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.en
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<{ message: string; restored: number } | ApiError>
+    res: NextApiResponse<{ message: string; restored: number; errors?: string[] } | ApiError>
 ) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });

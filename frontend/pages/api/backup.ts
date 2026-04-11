@@ -4,7 +4,7 @@ import { ApiError } from "../../lib/types";
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<{ message: string; backupId: string } | ApiError>
+    res: NextApiResponse<{ message: string; backupId: string; data?: unknown } | ApiError>
 ) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });

@@ -1,3 +1,29 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Node.js
+frontend/node_modules/
+node_modules/
+
+# Next.js
+frontend/.next/
+.next/
+
+# Test coverage
+frontend/coverage/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Python
 env311/
 __pycache__/
@@ -5,28 +31,17 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Node.js
-node_modules/
-npm-debug.log*
+# Node.js (additional)
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 .npm
 .eslintcache
 
-# Next.js
-.next/
+# Next.js (additional)
 out/
 build/
 dist/
-
-# Environment variables
-.env
-.env.local
-.env*.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # IDE
 .vscode/
@@ -34,20 +49,16 @@ dist/
 *.swp
 *.swo
 *~
-.DS_Store
 
-# OS
-.DS_Store
+# OS (additional)
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
 Desktop.ini
 
-# Logs
-*.log
+# Logs (additional)
 logs/
 *.log.*
 

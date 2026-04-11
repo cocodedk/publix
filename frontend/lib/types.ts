@@ -118,3 +118,28 @@ export interface BulkOperationRequest {
     operation: "delete" | "update" | "tag";
     data?: any;
 }
+
+export interface BreachSource {
+  name: string
+  breachCount: number
+  breaches: BreachEntry[]
+  tier: 'free' | 'paid'
+}
+
+export interface BreachEntry {
+  name: string
+  date?: string
+  dataClasses?: string[]
+  description?: string
+}
+
+export interface ReportResult {
+  email: string
+  totalBreaches: number
+  sources: BreachSource[]
+  generatedAt: string
+  tier: 'free' | 'paid'
+}
+
+export type ReportTier = 'free' | 'paid'
+export type UserPlan = 'free' | 'paid'

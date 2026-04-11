@@ -11,7 +11,12 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "db:init": "./scripts/init-db.sh"
+    "db:init": "./scripts/init-db.sh",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui"
   },
-  "description": "Modern credential search platform with Next.js and Neo4j"
+  "description": "Modern credential search platform with Next.js and Neo4j",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
 }

@@ -11,7 +11,7 @@ import {
     CircularProgress,
     Button
 } from "@mui/material";
-import { Network } from "vis-network";
+import { Network, Options } from "vis-network";
 import { DataSet } from "vis-data";
 
 interface GraphNode {
@@ -104,7 +104,7 @@ export default function GraphPage() {
             // Initialize network
             if (networkRef.current) {
                 const data = { nodes, edges };
-                const options = {
+                const options: Options = {
                     nodes: {
                         shape: "box",
                         borderWidth: 2,
@@ -114,7 +114,9 @@ export default function GraphPage() {
                         width: 2,
                         shadow: true,
                         smooth: {
-                            type: "continuous"
+                            enabled: true,
+                            type: "continuous",
+                            roundness: 0.5
                         }
                     },
                     physics: {

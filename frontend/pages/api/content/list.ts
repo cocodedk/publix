@@ -2,18 +2,20 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
 import { ListContentResponse, ApiError } from "../../../lib/types";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.env.SALT || ""));
+import { requireAuth } from "../../../lib/auth";
+import { validateEnv } from "../../../lib/env";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ListContentResponse | ApiError>) {
     if (req.method !== "GET") {
         return res.status(405).json({ error: "Method not allowed" });
     }
 
+    const user = await requireAuth(req, res, ["admin"]);
+    if (!user) return;
+
     try {
+        const env = validateEnv();
+        const encryptor = new Encryptor(env.ENCRYPTION_KEY + env.SALT);
         const page = parseInt(req.query.page as string) || 1;
         const perPage = Math.min(parseInt(req.query.perPage as string) || 20, 100); // Max 100 per page
         const skip = (page - 1) * perPage;

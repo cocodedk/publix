@@ -14,6 +14,12 @@ export interface ContentLineNode {
     line: string; // encrypted
     email_hash: string;
     mainDataId: string;
+    createdAt?: string;
+    updatedAt?: string;
+    lastSyncedAt?: string;
+    source?: "intelx" | "manual" | "import";
+    qualityScore?: number;
+    verified?: boolean;
 }
 
 export interface Domain {
@@ -95,3 +101,45 @@ export interface ApiError {
     message?: string;
     details?: any;
 }
+
+export interface SearchFilters {
+    dateFrom?: string;
+    dateTo?: string;
+    domain?: string;
+    tld?: string;
+    emailDomain?: string;
+    hasPassword?: boolean;
+    source?: "intelx" | "manual" | "import";
+    verified?: boolean;
+}
+
+export interface BulkOperationRequest {
+    ids: string[];
+    operation: "delete" | "update" | "tag";
+    data?: any;
+}
+
+export interface BreachSource {
+  name: string
+  breachCount: number
+  breaches: BreachEntry[]
+  tier: 'free' | 'paid'
+}
+
+export interface BreachEntry {
+  name: string
+  date?: string
+  dataClasses?: string[]
+  description?: string
+}
+
+export interface ReportResult {
+  email: string
+  totalBreaches: number
+  sources: BreachSource[]
+  generatedAt: string
+  tier: 'free' | 'paid'
+}
+
+export type ReportTier = 'free' | 'paid'
+export type UserPlan = 'free' | 'paid'

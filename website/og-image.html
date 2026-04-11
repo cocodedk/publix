@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1200">
+  <title>Publix OG Image</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+    }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Scan-line texture */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 212, 255, 0.012) 3px,
+        rgba(0, 212, 255, 0.012) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 460px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Left panel */
+    .left {
+      padding: 64px 56px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #00d4ff;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .logo span { color: #8b949e; font-weight: 400; }
+
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #8b949e;
+      letter-spacing: 0.12em;
+      margin-bottom: 28px;
+    }
+
+    .headline {
+      font-family: 'Space Mono', monospace;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: #e6edf3;
+      line-height: 1.18;
+      margin-bottom: 20px;
+      letter-spacing: -1.5px;
+    }
+
+    .headline em {
+      font-style: normal;
+      color: #00d4ff;
+    }
+
+    .sub {
+      font-size: 1rem;
+      color: #8b949e;
+      line-height: 1.6;
+      max-width: 420px;
+      margin-bottom: 36px;
+    }
+
+    .chips {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chip {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      width: fit-content;
+    }
+
+    .chip--amber { border-color: #f59e0b; color: #f59e0b; }
+    .chip--cyan  { border-color: #00d4ff; color: #00d4ff; }
+
+    .chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Right panel */
+    .right {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      border-left: 1px solid #30363d;
+      background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+    }
+
+    .shield-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .shield-wrap svg {
+      width: 220px;
+      height: 252px;
+      filter: drop-shadow(0 0 48px rgba(0, 212, 255, 0.35));
+    }
+
+    .counter {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #f59e0b;
+      letter-spacing: -1px;
+      text-align: center;
+    }
+
+    .counter-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: #8b949e;
+      letter-spacing: 0.12em;
+      text-align: center;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Bottom bar */
+    .bottom {
+      height: 56px;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 56px;
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .bottom__left {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      color: #8b949e;
+    }
+
+    .bottom__left a { color: #00d4ff; text-decoration: none; }
+
+    .bottom__right {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: #30363d;
+      letter-spacing: 0.08em;
+    }
+
+    /* Cyan corner accent on right panel */
+    .right::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 40px;
+      height: 40px;
+      border-top: 2px solid rgba(0, 212, 255, 0.3);
+      border-right: 2px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .right::after {
+      content: '';
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      width: 40px;
+      height: 40px;
+      border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+      border-left: 2px solid rgba(0, 212, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <!-- Left: brand + copy -->
+    <div class="left">
+      <div class="logo">Publix<span>.dk</span></div>
+      <div class="tag">// BREACH INTELLIGENCE</div>
+      <div class="headline">Have you been<br><em>breached?</em></div>
+      <p class="sub">Enter your email. Get a private breach report — results sent only to your inbox.</p>
+      <div class="chips">
+        <div class="chip chip--amber">
+          <span class="chip-dot"></span>
+          14B+ records indexed
+        </div>
+        <div class="chip chip--cyan">
+          <span class="chip-dot"></span>
+          Free to check
+        </div>
+        <div class="chip">
+          <span class="chip-dot"></span>
+          Report to inbox only
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: shield + counter -->
+    <div class="right">
+      <div class="shield-wrap">
+        <svg viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="og-shield-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#00d4ff" stop-opacity="0.05"/>
+            </linearGradient>
+          </defs>
+          <path d="M140 12 L268 56 L268 160 C268 232 210 286 140 308 C70 286 12 232 12 160 L12 56 Z"
+                fill="url(#og-shield-grad)" stroke="#00d4ff" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M140 36 L248 72 L248 160 C248 218 198 264 140 284 C82 264 32 218 32 160 L32 72 Z"
+                fill="none" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.35" stroke-linejoin="round"/>
+          <rect x="110" y="156" width="60" height="52" rx="8" fill="#00d4ff" fill-opacity="0.15" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M120 156 L120 136 C120 118 160 118 160 136 L160 156"
+                fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="140" cy="178" r="7" fill="#00d4ff" fill-opacity="0.85"/>
+          <rect x="137" y="178" width="6" height="14" rx="3" fill="#00d4ff" fill-opacity="0.85"/>
+          <line x1="40" y1="100" x2="60" y2="100" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+          <line x1="40" y1="100" x2="40" y2="120" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+          <line x1="240" y1="100" x2="220" y2="100" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+          <line x1="240" y1="100" x2="240" y2="120" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+        </svg>
+        <div>
+          <div class="counter">14,000,000,000+</div>
+          <div class="counter-label">records indexed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="bottom">
+    <div class="bottom__left">
+      Built by Babak Bandpey · <a href="https://cocode.dk">cocode.dk</a>
+    </div>
+    <div class="bottom__right">publix.dk</div>
+  </div>
+</body>
+</html>

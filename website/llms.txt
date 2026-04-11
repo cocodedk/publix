@@ -1,0 +1,27 @@
+# Publix
+
+> Private breach notification service. Enter your email, receive a confidential report in your inbox — results are never shown in the browser, proving you own the address.
+
+Publix checks email addresses against known data breach databases (XposedOrNot, LeakCheck on the free tier; HIBP Pro, Dehashed, and IntelX on the paid tier) and delivers findings exclusively to the queried email address. This GDPR-compliant approach proves ownership without exposing credentials on-screen. Built with Next.js, TypeScript, Neo4j (AES-256-GCM encrypted), and deployed at publix.dk.
+
+## Service
+
+- [Breach Check](https://publix.dk/check): Submit an email address for a breach scan — the full report is delivered to that inbox only
+- [Pricing](https://publix.dk/pricing): Free tier (XposedOrNot + LeakCheck) and Pro tier (adds HIBP Pro, Dehashed, IntelX)
+
+## API
+
+- [Health Check](https://publix.dk/api/health): GET — returns service and Neo4j status as `{"status":"ok","neo4j":"ok"}`
+- [Breach Report](https://publix.dk/api/report): POST `{"email":"user@example.com"}` — triggers async scan and emails report; responds 202 immediately
+
+## Project
+
+- [GitHub Repository](https://github.com/cocodedk/publix): Full source code, MIT License
+- [English Site](https://cocodedk.github.io/publix/): Marketing site — features, how it works, pricing overview
+- [Persian Site](https://cocodedk.github.io/publix/fa/): فارسی — Persian RTL version of the marketing site
+
+## Optional
+
+- [Creator](https://cocode.dk): Built by Babak Bandpey at Cocode
+- [License](https://github.com/cocodedk/publix/blob/main/LICENSE): MIT License — open source, no secrets in repo
+- [Environment Variables](https://github.com/cocodedk/publix/blob/main/.env.example): Required configuration reference

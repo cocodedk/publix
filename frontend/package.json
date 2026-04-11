@@ -5,24 +5,53 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
     },
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
+        "@mui/icons-material": "^5.14.0",
         "@mui/material": "5.14.0",
         "axios": "1.5.0",
+        "bcrypt": "^6.0.0",
+        "date-fns": "^4.1.0",
         "dotenv": "16.3.1",
         "neo4j-driver": "5.12.0",
         "next": "13.5.11",
+        "next-auth": "^4.24.13",
+        "pino": "^10.3.1",
+        "rate-limiter-flexible": "^11.0.0",
         "react": "18.2.0",
-        "react-dom": "18.2.0"
+        "react-dom": "18.2.0",
+        "react-toastify": "^11.0.5",
+        "recharts": "^3.4.1",
+        "resend": "^6.10.0",
+        "vis-data": "^8.0.3",
+        "vis-network": "^10.0.2",
+        "zod": "^4.1.12"
+    },
+    "overrides": {
+        "@types/react": "18.3.23"
     },
     "devDependencies": {
+        "@types/bcrypt": "^6.0.0",
+        "@types/jest": "^30.0.0",
         "@types/node": "20.5.1",
-        "@types/react": "18.2.14",
+        "@types/react": "18.3.23",
         "eslint": "8.45.0",
         "eslint-config-next": "13.5.0",
+        "eslint-config-prettier": "^10.1.8",
+        "jest": "^30.3.0",
+        "jest-environment-node": "^30.3.0",
+        "node-mocks-http": "^1.17.2",
+        "prettier": "^3.8.2",
+        "ts-jest": "^29.4.9",
+        "ts-node": "^10.9.2",
         "typescript": "5.2.2"
     }
 }

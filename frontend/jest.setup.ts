@@ -1,0 +1,8 @@
+process.env.NEO4J_URI = 'bolt://localhost:7687'
+process.env.NEO4J_USER = 'neo4j'
+process.env.NEO4J_PASSWORD = 'testpassword'
+process.env.ENCRYPTION_KEY = 'dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdA=='
+process.env.SALT = 'dGVzdHNhbHQ='
+process.env.RESEND_API_KEY = 're_test_123'
+process.env.RESEND_FROM_EMAIL = 'noreply@publix.dk'
+process.env.NEXTAUTH_SECRET = 'test-secret-for-jest-0123456789abc'

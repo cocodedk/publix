@@ -1,10 +1,10 @@
-import neo4j, { Driver, Session, Result, Record } from "neo4j-driver";
+import neo4j from "neo4j-driver";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 class Neo4jClient {
-    private driver: Driver | null = null;
+    private driver: ReturnType<typeof neo4j.driver> | null = null;
     private readonly uri: string;
     private readonly user: string;
     private readonly password: string;
@@ -15,15 +15,15 @@ class Neo4jClient {
         this.password = process.env.NEO4J_PASSWORD || "test";
     }
 
-    private getDriver(): Driver {
+    private getDriver(): ReturnType<typeof neo4j.driver> {
         if (!this.driver) {
             this.driver = neo4j.driver(
                 this.uri,
                 neo4j.auth.basic(this.user, this.password),
                 {
-                    maxConnectionLifetime: 3 * 60 * 60 * 1000, // 3 hours
+                    maxConnectionLifetime: 3 * 60 * 60 * 1000,
                     maxConnectionPoolSize: 50,
-                    connectionAcquisitionTimeout: 2 * 60 * 1000, // 2 minutes
+                    connectionAcquisitionTimeout: 2 * 60 * 1000,
                 }
             );
         }
@@ -41,21 +41,19 @@ class Neo4jClient {
         }
     }
 
-    async run<T>(query: string, params: Record<string, any> = {}): Promise<T[]> {
+    async run<T = any>(query: string, params: { [key: string]: unknown } = {}): Promise<T[]> {
         const driver = this.getDriver();
-        const session: Session = driver.session();
+        const session = driver.session();
         try {
-            const result: Result = await session.run(query, params);
-            return result.records.map((record: Record) => {
+            const result = await session.run(query, params);
+            return result.records.map((record: { toObject: () => { [key: string]: unknown } }) => {
                 const obj = record.toObject();
-                // Convert Neo4j Integer types to JavaScript numbers
-                const converted: any = {};
+                const converted: { [key: string]: unknown } = {};
                 for (const key in obj) {
                     const value = obj[key];
                     if (neo4j.isInt(value)) {
-                        converted[key] = value.toNumber();
-                    } else if (value && typeof value === "object" && !Array.isArray(value) && !Buffer.isBuffer(value)) {
-                        // Recursively convert nested objects
+                        converted[key] = (value as { toNumber: () => number }).toNumber();
+                    } else if (value && typeof value === "object" && !Array.isArray(value) && !Buffer.isBuffer(value as Buffer)) {
                         converted[key] = this.convertNeo4jTypes(value);
                     } else {
                         converted[key] = value;
@@ -71,17 +69,17 @@ class Neo4jClient {
         }
     }
 
-    private convertNeo4jTypes(obj: any): any {
+    private convertNeo4jTypes(obj: unknown): unknown {
         if (neo4j.isInt(obj)) {
-            return obj.toNumber();
+            return (obj as { toNumber: () => number }).toNumber();
         }
         if (Array.isArray(obj)) {
             return obj.map(item => this.convertNeo4jTypes(item));
         }
-        if (obj && typeof obj === "object" && !Buffer.isBuffer(obj)) {
-            const converted: any = {};
-            for (const key in obj) {
-                converted[key] = this.convertNeo4jTypes(obj[key]);
+        if (obj && typeof obj === "object" && !Buffer.isBuffer(obj as Buffer)) {
+            const converted: { [key: string]: unknown } = {};
+            for (const key in obj as object) {
+                converted[key] = this.convertNeo4jTypes((obj as { [key: string]: unknown })[key]);
             }
             return converted;
         }
@@ -89,16 +87,20 @@ class Neo4jClient {
     }
 
     async runTransaction<T>(
-        callback: (tx: neo4j.Transaction) => Promise<Result>
+        callback: (tx: { run: (query: string, params?: object) => Promise<unknown> }) => Promise<unknown>
     ): Promise<T[]> {
         const driver = this.getDriver();
-        const session: Session = driver.session();
+        const session = driver.session();
         try {
-            const result: Result = await session.executeWrite(callback);
-            return result.records.map((record: Record) => {
-                const obj = record.toObject();
-                return this.convertNeo4jTypes(obj) as T;
-            });
+            const result = await session.executeWrite(callback as Parameters<typeof session.executeWrite>[0]);
+            if (result && typeof result === 'object' && 'records' in result) {
+                const queryResult = result as { records: Array<{ toObject: () => unknown }> };
+                return queryResult.records.map(record => {
+                    const obj = record.toObject();
+                    return this.convertNeo4jTypes(obj) as T;
+                });
+            }
+            return [];
         } catch (error) {
             console.error("Neo4j transaction error:", error);
             throw new Error(`Database transaction failed: ${error instanceof Error ? error.message : String(error)}`);

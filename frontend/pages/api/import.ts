@@ -1,21 +1,73 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../lib/neo4jClient";
 import { Encryptor } from "../../lib/encryptor";
-import { ImportRequest, ImportResponse, ApiError } from "../../lib/types";
-import dotenv from "dotenv";
+import { ImportRequest, ImportResponse, ApiError, ImportItem } from "../../lib/types";
+import { requireAuth } from "../../lib/auth";
+import { validateEnv } from "../../lib/env";
+import { logger } from "../../lib/logger";
 import crypto from "crypto";
 
-dotenv.config();
+function parseCSV(csvText: string): ImportItem[] {
+    const lines = csvText.split("\n").filter(line => line.trim());
+    if (lines.length < 2) return [];
 
-const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.env.SALT || ""));
+    const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+    const items: ImportItem[] = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(",").map(v => v.trim().replace(/^"|"$/g, ""));
+        const item: any = {};
+
+        headers.forEach((header, index) => {
+            item[header] = values[index] || "";
+        });
+
+        // Try to map common CSV formats
+        const email = item.email || item["e-mail"] || item["email address"] || "";
+        const password = item.password || item.pass || item.pwd || null;
+        const line = item.line || item.data || item.content || `${email}:${password || ""}`;
+        const domain = item.domain || (email.includes("@") ? email.split("@")[1].split(".")[0] : "");
+        const tld = item.tld || (email.includes("@") ? email.split("@")[1].split(".").slice(-1)[0] : "com");
+
+        if (email && email.includes("@")) {
+            items.push({
+                email,
+                password: password || null,
+                line,
+                domain: domain || email.split("@")[1].split(".").slice(0, -1).join(".") || "",
+                tld: tld || email.split("@")[1].split(".").slice(-1)[0] || "com"
+            });
+        }
+    }
+
+    return items;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ImportResponse | ApiError>) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
 
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
+
     try {
-        const body: ImportRequest = req.body;
+        const env = validateEnv();
+        const encryptor = new Encryptor(env.ENCRYPTION_KEY + env.SALT);
+        let body: ImportRequest;
+
+        // Check if it's a CSV upload (guard typeof before calling string methods)
+        const isCsvBody =
+            req.headers["content-type"]?.includes("text/csv") ||
+            (typeof req.body === "string" && req.body.includes(",") && req.body.includes("\n"));
+
+        if (isCsvBody) {
+            const csvText = req.body as string;
+            const items = parseCSV(csvText);
+            body = { items };
+        } else {
+            body = req.body as ImportRequest;
+        }
 
         if (!body.items || !Array.isArray(body.items)) {
             return res.status(400).json({
@@ -44,7 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
                     // Generate email hash
                     const emailHash = crypto.createHash("sha256")
-                        .update(item.email + (process.env.SALT || ""))
+                        .update(item.email + env.SALT)
                         .digest("hex");
 
                     // Encrypt data
@@ -53,18 +105,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     const encryptedLine = encryptor.encrypt(item.line);
 
                     // Generate mainDataId if not provided
-                    const mainDataId = item.mainDataId || `content-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                    const mainDataId = item.mainDataId || `content-${crypto.randomUUID()}`;
 
                     // Create or get TLD, Domain, and ContentLine
+                    // MERGE on email_hash (deterministic) so re-imports upsert rather than duplicate.
+                    // ON CREATE SET preserves original createdAt/source on re-import.
                     const query = `
                         MERGE (t:TLD {name: $tld})
                         MERGE (d:Domain {name: $domain})
                         MERGE (t)-[:HAS_DOMAIN]->(d)
-                        MERGE (c:ContentLine {mainDataId: $mainDataId})
+                        MERGE (c:ContentLine {email_hash: $emailHash})
+                        ON CREATE SET c.mainDataId = $mainDataId,
+                                      c.createdAt = datetime(),
+                                      c.source = "import"
                         SET c.email = $encryptedEmail,
                             c.password = $encryptedPassword,
                             c.line = $encryptedLine,
-                            c.email_hash = $emailHash
+                            c.updatedAt = datetime()
                         MERGE (d)-[:HAS_CONTENT]->(c)
                         RETURN c
                     `;
@@ -95,7 +152,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         return res.status(200).json(response);
     } catch (error) {
-        console.error("Import error:", error);
+        logger.error({ error }, "Import error");
         return res.status(500).json({
             error: "Internal server error",
             message: error instanceof Error ? error.message : String(error)

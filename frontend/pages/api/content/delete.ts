@@ -1,11 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { ApiError } from "../../../lib/types";
+import { requireAuth } from "../../../lib/auth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<{ success: boolean } | ApiError>) {
     if (req.method !== "DELETE") {
         return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const user = await requireAuth(req, res, ["admin"]);
+    if (!user) return;
 
     try {
         const { id } = req.query;

@@ -108,17 +108,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     const mainDataId = item.mainDataId || `content-${crypto.randomUUID()}`;
 
                     // Create or get TLD, Domain, and ContentLine
+                    // MERGE on email_hash (deterministic) so re-imports upsert rather than duplicate.
+                    // ON CREATE SET preserves original createdAt/source on re-import.
                     const query = `
                         MERGE (t:TLD {name: $tld})
                         MERGE (d:Domain {name: $domain})
                         MERGE (t)-[:HAS_DOMAIN]->(d)
-                        MERGE (c:ContentLine {mainDataId: $mainDataId})
+                        MERGE (c:ContentLine {email_hash: $emailHash})
+                        ON CREATE SET c.mainDataId = $mainDataId,
+                                      c.createdAt = datetime(),
+                                      c.source = "import"
                         SET c.email = $encryptedEmail,
                             c.password = $encryptedPassword,
                             c.line = $encryptedLine,
-                            c.email_hash = $emailHash,
-                            c.createdAt = datetime(),
-                            c.source = "import"
+                            c.updatedAt = datetime()
                         MERGE (d)-[:HAS_CONTENT]->(c)
                         RETURN c
                     `;

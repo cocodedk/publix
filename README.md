@@ -2,6 +2,13 @@
 
 **Modern credential search platform** built with **Next.js (TypeScript)** and **Neo4j**. The application provides a fast, searchable UI for encrypted email/password data with full CRUD operations.
 
+## Website
+
+- [English](https://cocodedk.github.io/publix/)
+- [فارسی (Persian)](https://cocodedk.github.io/publix/fa/)
+
+> Live service: [publix.dk](https://publix.dk)
+
 ## Overview
 
 - **Front-end**: Next.js with React, Material-UI, and TypeScript
@@ -316,4 +323,4 @@ See `.env.example` for all required environment variables:
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License · © 2026 [Cocode](https://cocode.dk)

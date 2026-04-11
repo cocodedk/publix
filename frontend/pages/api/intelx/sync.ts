@@ -4,6 +4,8 @@ import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
 import { calculateQualityScore, validateEmail, validateDomain, validateTLD, calculateAgeInDays } from "../../../lib/qualityScoring";
 import { ApiError } from "../../../lib/types";
+import { requireAuth } from "../../../lib/auth";
+import { parseIntelXResult } from "../../../lib/parsers/intelx";
 import dotenv from "dotenv";
 import crypto from "crypto";
 
@@ -16,77 +18,6 @@ interface SyncRequest {
     type?: "email" | "domain" | "auto";
 }
 
-interface ParsedCredential {
-    email: string;
-    password: string | null;
-    line: string;
-    domain: string;
-    tld: string;
-}
-
-function parseIntelXResult(selector: any): ParsedCredential | null {
-    try {
-        const value = selector.selectorvalue || "";
-        const type = selector.selectortype || "";
-
-        // Try to parse email:password format
-        if (type === "email" || value.includes("@")) {
-            const parts = value.split(":");
-            const email = parts[0]?.trim();
-            const password = parts[1]?.trim() || null;
-
-            if (email && email.includes("@")) {
-                const [localPart, domainPart] = email.split("@");
-                if (domainPart) {
-                    const domainParts = domainPart.split(".");
-                    const tld = domainParts[domainParts.length - 1] || "com";
-                    const domain = domainParts.slice(0, -1).join(".") || domainPart;
-
-                    return {
-                        email,
-                        password,
-                        line: value,
-                        domain,
-                        tld
-                    };
-                }
-            }
-        }
-
-        // Try to parse other formats
-        if (value.includes("|") || value.includes("\t")) {
-            const delimiter = value.includes("|") ? "|" : "\t";
-            const parts = value.split(delimiter);
-            const email = parts.find((p: string) => p.includes("@"))?.trim();
-
-            if (email) {
-                const [localPart, domainPart] = email.split("@");
-                if (domainPart) {
-                    const domainParts = domainPart.split(".");
-                    const tld = domainParts[domainParts.length - 1] || "com";
-                    const domain = domainParts.slice(0, -1).join(".") || domainPart;
-                    const password = parts.find((p: string, i: number) =>
-                        i !== parts.findIndex((pp: string) => pp.includes("@"))
-                    )?.trim() || null;
-
-                    return {
-                        email,
-                        password,
-                        line: value,
-                        domain,
-                        tld
-                    };
-                }
-            }
-        }
-
-        return null;
-    } catch (error) {
-        console.error("Error parsing IntelX result:", error);
-        return null;
-    }
-}
-
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<{ success: number; failed: number; errors: string[] } | ApiError>
@@ -94,6 +25,9 @@ export default async function handler(
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
 
     try {
         const body: SyncRequest = req.body;
@@ -119,47 +53,32 @@ export default async function handler(
                 } else if (type === "domain") {
                     selectors = await intelxClient.searchDomain(query);
                 } else {
-                    // Auto-detect: if it contains @, treat as email
-                    if (query.includes("@")) {
-                        selectors = await intelxClient.searchEmail(query);
-                    } else {
-                        selectors = await intelxClient.searchDomain(query);
-                    }
+                    selectors = query.includes("@")
+                        ? await intelxClient.searchEmail(query)
+                        : await intelxClient.searchDomain(query);
                 }
 
                 for (const selector of selectors) {
                     const credential = parseIntelXResult(selector);
-
-                    if (!credential) {
-                        continue;
-                    }
+                    if (!credential) continue;
 
                     try {
-                        // Generate email hash
                         const emailHash = crypto.createHash("sha256")
                             .update(credential.email + (process.env.SALT || ""))
                             .digest("hex");
 
-                        // Encrypt data
                         const encryptedEmail = encryptor.encrypt(credential.email);
                         const encryptedPassword = credential.password
                             ? encryptor.encrypt(credential.password)
                             : null;
                         const encryptedLine = encryptor.encrypt(credential.line);
-
-                        // Generate mainDataId
                         const mainDataId = `intelx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-                        // Check if already exists
-                        const existingQuery = `
-                            MATCH (c:ContentLine {email_hash: $emailHash})
-                            RETURN c LIMIT 1
-                        `;
+                        // Read existing age for quality score calculation
+                        const existingQuery = `MATCH (c:ContentLine {email_hash: $emailHash}) RETURN c.createdAt AS createdAt LIMIT 1`;
                         const existing = await neo4jClient.run(existingQuery, { emailHash });
-
-                        // Calculate quality score
-                        const existingAge = existing.length > 0 && existing[0].c?.createdAt
-                            ? calculateAgeInDays(existing[0].c.createdAt)
+                        const existingAge = existing.length > 0 && existing[0].createdAt
+                            ? calculateAgeInDays(existing[0].createdAt)
                             : 0;
 
                         const qualityScore = calculateQualityScore({
@@ -173,56 +92,32 @@ export default async function handler(
                             age: existingAge
                         });
 
-                        if (existing.length > 0) {
-                            // Update existing
-                            const updateQuery = `
-                                MATCH (c:ContentLine {email_hash: $emailHash})
-                                SET c.email = $encryptedEmail,
-                                    c.password = $encryptedPassword,
-                                    c.line = $encryptedLine,
-                                    c.lastSyncedAt = datetime(),
-                                    c.source = "intelx",
-                                    c.qualityScore = $qualityScore
-                                RETURN c
-                            `;
-                            await neo4jClient.run(updateQuery, {
-                                emailHash,
-                                encryptedEmail,
-                                encryptedPassword,
-                                encryptedLine,
-                                qualityScore
-                            });
-                        } else {
-                            // Create new
-                            const createQuery = `
-                                MERGE (t:TLD {name: $tld})
-                                MERGE (d:Domain {name: $domain})
-                                MERGE (t)-[:HAS_DOMAIN]->(d)
-                                CREATE (c:ContentLine {
-                                    email: $encryptedEmail,
-                                    password: $encryptedPassword,
-                                    line: $encryptedLine,
-                                    email_hash: $emailHash,
-                                    mainDataId: $mainDataId,
-                                    createdAt: datetime(),
-                                    lastSyncedAt: datetime(),
-                                    source: "intelx",
-                                    qualityScore: $qualityScore
-                                })
-                                MERGE (d)-[:HAS_CONTENT]->(c)
-                                RETURN c
-                            `;
-                            await neo4jClient.run(createQuery, {
-                                tld: credential.tld,
-                                domain: credential.domain,
-                                encryptedEmail,
-                                encryptedPassword,
-                                encryptedLine,
-                                emailHash,
-                                mainDataId,
-                                qualityScore
-                            });
-                        }
+                        // Atomic upsert via MERGE (prevents duplicate creation race condition)
+                        const upsertQuery = `
+                            MERGE (t:TLD {name: $tld})
+                            MERGE (d:Domain {name: $domain})
+                            MERGE (t)-[:HAS_DOMAIN]->(d)
+                            MERGE (c:ContentLine {email_hash: $emailHash})
+                            ON CREATE SET c.mainDataId = $mainDataId, c.createdAt = datetime()
+                            SET c.email = $encryptedEmail,
+                                c.password = $encryptedPassword,
+                                c.line = $encryptedLine,
+                                c.lastSyncedAt = datetime(),
+                                c.source = "intelx",
+                                c.qualityScore = $qualityScore
+                            MERGE (d)-[:HAS_CONTENT]->(c)
+                            RETURN c
+                        `;
+                        await neo4jClient.run(upsertQuery, {
+                            tld: credential.tld,
+                            domain: credential.domain,
+                            emailHash,
+                            mainDataId,
+                            encryptedEmail,
+                            encryptedPassword,
+                            encryptedLine,
+                            qualityScore
+                        });
 
                         success++;
                     } catch (error) {
@@ -239,7 +134,7 @@ export default async function handler(
         return res.status(200).json({
             success,
             failed,
-            errors: errors.slice(0, 100) // Limit error messages
+            errors: errors.slice(0, 100)
         });
     } catch (error) {
         console.error("IntelX sync error:", error);

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { BulkOperationRequest, ApiError } from "../../../lib/types";
+import { requireAuth } from "../../../lib/auth";
 
 export default async function handler(
     req: NextApiRequest,
@@ -9,6 +10,9 @@ export default async function handler(
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
 
     try {
         const body: BulkOperationRequest = req.body;

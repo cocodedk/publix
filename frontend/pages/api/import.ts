@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../lib/neo4jClient";
 import { Encryptor } from "../../lib/encryptor";
 import { ImportRequest, ImportResponse, ApiError, ImportItem } from "../../lib/types";
+import { requireAuth } from "../../lib/auth";
 import dotenv from "dotenv";
 import crypto from "crypto";
 
@@ -49,6 +50,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
 
     try {
         let body: ImportRequest;

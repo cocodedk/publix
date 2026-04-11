@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
 import { ApiError } from "../../../lib/types";
+import { requireAuth } from "../../../lib/auth";
 import dotenv from "dotenv";
 import crypto from "crypto";
 
@@ -16,6 +17,9 @@ export default async function handler(
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
 
     try {
         const { backupData } = req.body;
@@ -68,8 +72,8 @@ export default async function handler(
                         c.line = $encryptedLine,
                         c.email_hash = $emailHash,
                         c.createdAt = datetime($createdAt),
-                        c.updatedAt = $updatedAt ? datetime($updatedAt) : null,
-                        c.lastSyncedAt = $lastSyncedAt ? datetime($lastSyncedAt) : null,
+                        c.updatedAt = CASE WHEN $updatedAt IS NOT NULL THEN datetime($updatedAt) ELSE null END,
+                        c.lastSyncedAt = CASE WHEN $lastSyncedAt IS NOT NULL THEN datetime($lastSyncedAt) ELSE null END,
                         c.source = $source,
                         c.verified = $verified,
                         c.qualityScore = $qualityScore

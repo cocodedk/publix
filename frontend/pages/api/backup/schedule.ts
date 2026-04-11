@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { ApiError } from "../../../lib/types";
+import { requireAuth } from "../../../lib/auth";
 import fs from "fs";
 import path from "path";
 
@@ -15,8 +16,11 @@ export default async function handler(
         return res.status(405).json({ error: "Method not allowed" });
     }
 
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
+
     try {
-        const { schedule, backupPath } = req.body;
+        const { schedule } = req.body;
 
         if (!schedule) {
             return res.status(400).json({
@@ -43,7 +47,7 @@ export default async function handler(
         }
 
         const scheduleId = `backup-${Date.now()}`;
-        const backupDir = backupPath || path.join(process.cwd(), "backups");
+        const backupDir = path.join(process.cwd(), "backups");
 
         // Ensure backup directory exists
         if (!fs.existsSync(backupDir)) {

@@ -12,9 +12,10 @@ export default withAuth(
           '/api/content/create', '/api/content/update',
           '/api/content/delete', '/api/content/bulk',
           '/api/import', '/api/backup', '/api/intelx/sync',
+          '/api/export',
           '/create', '/edit', '/dashboard',
         ]
-        if (protectedPaths.some(p => path.startsWith(p))) return !!token
+        if (protectedPaths.some(p => path.startsWith(p))) return token?.role === 'admin'
         return true
       },
     },
@@ -29,6 +30,7 @@ export const config = {
     '/api/import',
     '/api/backup/:path*',
     '/api/intelx/sync',
+    '/api/export/:path*',
     '/create', '/edit/:path*', '/dashboard',
   ],
 }

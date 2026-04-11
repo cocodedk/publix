@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
 import { ApiError } from "../../../lib/types";
+import { requireAuth } from "../../../lib/auth";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -12,6 +13,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (req.method !== "GET") {
         return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const user = await requireAuth(req, res, ['admin']);
+    if (!user) return;
 
     try {
         const ids = req.query.ids as string | undefined;

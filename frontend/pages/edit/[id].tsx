@@ -19,7 +19,6 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { UpdateContentRequest, ContentResponse } from "../../lib/types";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 export default function EditPage() {
     const router = useRouter();

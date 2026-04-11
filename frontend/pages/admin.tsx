@@ -38,7 +38,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { SearchResponse, SearchResult, SearchFilters } from "../lib/types";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
     const [query, setQuery] = useState("");

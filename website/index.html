@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publix — Have You Been Breached?</title>
+  <meta name="description" content="Publix checks your email against known data breaches and sends you a private report. Results go only to your inbox — never shown on screen.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://cocodedk.github.io/publix/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Publix — Have You Been Breached?">
+  <meta property="og:description" content="Private breach notification. Enter your email, get a report in your inbox.">
+  <meta property="og:url" content="https://cocodedk.github.io/publix/">
+  <meta property="og:image" content="https://cocodedk.github.io/publix/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Publix — Have You Been Breached?">
+  <meta name="twitter:description" content="Private breach notification. Enter your email, get a report in your inbox.">
+  <meta name="twitter:image" content="https://cocodedk.github.io/publix/og.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Publix",
+    "description": "Private breach notification service. Check if your email appears in known data breaches.",
+    "url": "https://publix.dk",
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "Web",
+    "offers": [
+      {"@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "EUR"},
+      {"@type": "Offer", "name": "Pro", "price": "9", "priceCurrency": "EUR", "billingPeriod": "P1M"}
+    ],
+    "author": {"@type": "Person", "name": "Babak Bandpey", "url": "https://cocode.dk"}
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo">Publix<span>.dk</span></a>
+      <div class="nav__actions">
+        <a href="fa/" class="nav__lang" aria-label="Switch to Persian">فارسی</a>
+        <a href="https://publix.dk" class="btn btn--primary" target="_blank" rel="noopener">Check now →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero__inner">
+      <div class="hero__content">
+        <p class="hero__tag">// BREACH INTELLIGENCE</p>
+        <h1 class="hero__h1" id="hero-heading">Have you been<br><em>breached?</em></h1>
+        <p class="hero__sub">Enter your email. We search known breach databases and send a private report directly to your inbox — results never shown on screen.</p>
+        <a href="https://publix.dk" class="btn btn--primary btn--lg" target="_blank" rel="noopener">→ Check my email at publix.dk</a>
+      </div>
+      <div class="hero__shield" aria-hidden="true">
+        <svg class="shield-svg" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="shield-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#00d4ff" stop-opacity="0.04"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Shield outer -->
+          <path d="M140 12 L268 56 L268 160 C268 232 210 286 140 308 C70 286 12 232 12 160 L12 56 Z"
+                fill="url(#shield-grad)" stroke="#00d4ff" stroke-width="2" stroke-linejoin="round"/>
+          <!-- Shield inner ring -->
+          <path d="M140 36 L248 72 L248 160 C248 218 198 264 140 284 C82 264 32 218 32 160 L32 72 Z"
+                fill="none" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.3" stroke-linejoin="round"/>
+          <!-- Lock body -->
+          <rect x="110" y="156" width="60" height="52" rx="8" fill="#00d4ff" fill-opacity="0.15" stroke="#00d4ff" stroke-width="1.5" filter="url(#glow)"/>
+          <!-- Lock shackle -->
+          <path d="M120 156 L120 136 C120 118 160 118 160 136 L160 156"
+                fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+          <!-- Lock keyhole -->
+          <circle cx="140" cy="178" r="7" fill="#00d4ff" fill-opacity="0.8"/>
+          <rect x="137" y="178" width="6" height="14" rx="3" fill="#00d4ff" fill-opacity="0.8"/>
+          <!-- Corner decorations -->
+          <line x1="40" y1="100" x2="60" y2="100" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+          <line x1="40" y1="100" x2="40" y2="120" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+          <line x1="240" y1="100" x2="220" y2="100" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+          <line x1="240" y1="100" x2="240" y2="120" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.4"/>
+          <!-- Scan line overlay animation -->
+          <rect x="12" y="0" width="256" height="4" fill="#00d4ff" fill-opacity="0.08" rx="2">
+            <animateTransform attributeName="transform" type="translate" values="0,44;0,264;0,44" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="fill-opacity" values="0.08;0.18;0.08" dur="3s" repeatCount="indefinite"/>
+          </rect>
+        </svg>
+      </div>
+    </div>
+    <div class="hero__stats container">
+      <span class="stat-chip stat-chip--amber">14B+ records indexed</span>
+      <span class="stat-chip stat-chip--accent">Free to check</span>
+      <span class="stat-chip">Report to inbox only</span>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how section" aria-labelledby="how-heading">
+    <div class="how__inner">
+      <p class="section-label">Process</p>
+      <h2 class="section-title" id="how-heading">How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">01</div>
+          <div class="step__title">Enter your email</div>
+          <p class="step__desc">Visit publix.dk and submit your email address. We never display results on screen — only you receive the report.</p>
+        </div>
+        <div class="step">
+          <div class="step__num">02</div>
+          <div class="step__title">We search the databases</div>
+          <p class="step__desc">Publix queries free and paid breach intelligence sources including XposedOrNot, LeakCheck, HIBP Pro, and Dehashed.</p>
+        </div>
+        <div class="step">
+          <div class="step__num">03</div>
+          <div class="step__title">Report to your inbox</div>
+          <p class="step__desc">Your private breach report arrives in your inbox — not on screen. This proves you own the address and keeps results confidential.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features section" aria-labelledby="features-heading">
+    <div class="features__inner">
+      <p class="section-label">Capabilities</p>
+      <h2 class="section-title" id="features-heading">Why Publix</h2>
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2 L20 5 L20 12 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 12 L4 5 Z"/>
+            </svg>
+          </div>
+          <h3 class="feature-card__title">Privacy first</h3>
+          <p class="feature-card__desc">Results go only to your inbox — never displayed on screen. Submitting an email proves you own it, preventing unauthorised lookups on other people's addresses.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5 L3 19 C3 20.7 7.03 22 12 22 C16.97 22 21 20.7 21 19 L21 5"/>
+              <path d="M3 12 C3 13.7 7.03 15 12 15 C16.97 15 21 13.7 21 12"/>
+            </svg>
+          </div>
+          <h3 class="feature-card__title">Multiple breach sources</h3>
+          <p class="feature-card__desc">We aggregate across XposedOrNot, LeakCheck, HIBP Pro, and Dehashed — covering billions of records from hundreds of known breach datasets.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11 L7 7 C7 4.24 9.24 2 12 2 C14.76 2 17 4.24 17 7 L17 11"/>
+            </svg>
+          </div>
+          <h3 class="feature-card__title">Encrypted storage</h3>
+          <p class="feature-card__desc">All data at rest is protected with AES-256-GCM encryption. No plaintext passwords are ever stored. Your email is hashed before any external query.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <h3 class="feature-card__title">Free + Pro tiers</h3>
+          <p class="feature-card__desc">The basic breach check is free — covering the most common sources. Upgrade to Pro for full stealer-log intelligence, detailed password exposure data, and priority sources.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing section section--alt" aria-labelledby="pricing-heading">
+    <div class="pricing__inner">
+      <p class="section-label">Pricing</p>
+      <h2 class="section-title" id="pricing-heading">Simple, transparent pricing</h2>
+      <div class="pricing-grid">
+
+        <div class="pricing-card">
+          <div class="pricing-card__tier">Free</div>
+          <div class="pricing-card__price">
+            <span class="pricing-card__currency">€</span>
+            <span class="pricing-card__amount">0</span>
+            <span class="pricing-card__period">/ forever</span>
+          </div>
+          <ul class="pricing-card__features">
+            <li>XposedOrNot breach database</li>
+            <li>LeakCheck basic lookup</li>
+            <li>Breach names &amp; dates</li>
+            <li>Private report to inbox</li>
+            <li>No account required</li>
+          </ul>
+          <a href="https://publix.dk" class="btn btn--outline" target="_blank" rel="noopener">Get started free →</a>
+        </div>
+
+        <div class="pricing-card pricing-card--pro">
+          <div class="pricing-card__tier">Pro</div>
+          <div class="pricing-card__price">
+            <span class="pricing-card__currency">€</span>
+            <span class="pricing-card__amount">9</span>
+            <span class="pricing-card__period">/ month</span>
+          </div>
+          <ul class="pricing-card__features">
+            <li>Everything in Free</li>
+            <li>HIBP Pro (HaveIBeenPwned)</li>
+            <li>Dehashed full-text search</li>
+            <li>Stealer log intelligence</li>
+            <li>Full credential exposure details</li>
+            <li>Password patterns &amp; hash types</li>
+            <li>Priority processing</li>
+          </ul>
+          <a href="https://publix.dk" class="btn btn--primary" target="_blank" rel="noopener">Start Pro →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+      <div class="footer__main">
+        <div class="footer__left">
+          <div class="footer__brand">Publix</div>
+          <div class="footer__meta">
+            <span>MIT License</span>
+            <span>© 2026 <a href="https://cocode.dk" target="_blank" rel="noopener">Cocode</a></span>
+          </div>
+        </div>
+        <div class="footer__links">
+          <a href="https://github.com/cocodedk/publix" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://publix.dk" target="_blank" rel="noopener">publix.dk</a>
+          <a href="https://publix.dk/privacy" target="_blank" rel="noopener">Privacy</a>
+        </div>
+      </div>
+      <p class="footer__bottom">
+        Created by Babak Bandpey · Built by <a href="https://cocode.dk" target="_blank" rel="noopener">Cocode</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

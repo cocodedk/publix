@@ -4,6 +4,7 @@ import { Encryptor } from "../../lib/encryptor";
 import { ImportRequest, ImportResponse, ApiError, ImportItem } from "../../lib/types";
 import { requireAuth } from "../../lib/auth";
 import { validateEnv } from "../../lib/env";
+import { logger } from "../../lib/logger";
 import crypto from "crypto";
 
 function parseCSV(csvText: string): ImportItem[] {
@@ -148,7 +149,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         return res.status(200).json(response);
     } catch (error) {
-        console.error("Import error:", error);
+        logger.error({ error }, "Import error");
         return res.status(500).json({
             error: "Internal server error",
             message: error instanceof Error ? error.message : String(error)

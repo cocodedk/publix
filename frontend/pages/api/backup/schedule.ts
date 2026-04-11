@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { neo4jClient } from "../../../lib/neo4jClient";
 import { ApiError } from "../../../lib/types";
 import { requireAuth } from "../../../lib/auth";
+import { logger } from "../../../lib/logger";
 import fs from "fs";
 import path from "path";
 
@@ -78,9 +79,9 @@ export default async function handler(
 
                 fs.writeFileSync(filepath, JSON.stringify(backupData, null, 2));
 
-                console.log(`Scheduled backup completed: ${filename}`);
+                logger.info(`Scheduled backup completed: ${filename}`);
             } catch (error) {
-                console.error("Scheduled backup error:", error);
+                logger.error({ error }, "Scheduled backup error");
             }
         };
 
@@ -97,7 +98,7 @@ export default async function handler(
             scheduleId
         });
     } catch (error) {
-        console.error("Schedule backup error:", error);
+        logger.error({ error }, "Schedule backup error");
         return res.status(500).json({
             error: "Internal server error",
             message: error instanceof Error ? error.message : String(error)

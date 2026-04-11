@@ -64,7 +64,8 @@ export default async function handler(
                     MERGE (t:TLD {name: $tld})
                     MERGE (d:Domain {name: $domain})
                     MERGE (t)-[:HAS_DOMAIN]->(d)
-                    MERGE (c:ContentLine {mainDataId: $mainDataId})
+                    MERGE (c:ContentLine {email_hash: $emailHash})
+                    ON CREATE SET c.mainDataId = coalesce($mainDataId, $emailHash)
                     SET c.email = $encryptedEmail,
                         c.password = $encryptedPassword,
                         c.line = $encryptedLine,

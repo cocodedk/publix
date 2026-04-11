@@ -51,12 +51,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const password = content.password ? encryptor.decrypt(content.password) : "";
                 const line = encryptor.decrypt(content.line);
 
-                // Escape CSV values
+                // Escape CSV values, guarding against formula injection
                 const escapeCsv = (value: string) => {
-                    if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-                        return `"${value.replace(/"/g, '""')}"`;
+                    const safeValue = /^[=+\-@]/.test(value) ? `'${value}` : value;
+                    if (safeValue.includes(",") || safeValue.includes('"') || safeValue.includes("\n")) {
+                        return `"${safeValue.replace(/"/g, '""')}"`;
                     }
-                    return value;
+                    return safeValue;
                 };
 
                 return [

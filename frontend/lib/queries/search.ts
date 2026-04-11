@@ -74,11 +74,11 @@ export async function searchByEmailHash(
     const emailHash = crypto.createHash("sha256")
         .update(q + salt)
         .digest("hex");
-    // Strip node-alias prefixes that don't apply to single-node query
-    const strippedWhere = whereClause.replace(/\bd\./g, "").replace(/\bt\./g, "");
     const query = `
         MATCH (c:ContentLine {email_hash: $hash})
-        ${strippedWhere}
+        OPTIONAL MATCH (d:Domain)-[:HAS_CONTENT]->(c)
+        OPTIONAL MATCH (t:TLD)-[:HAS_DOMAIN]->(d)
+        ${whereClause}
         RETURN c
     `;
     const result = await neo4jClient.run<{ c: unknown }>(

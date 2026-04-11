@@ -76,11 +76,6 @@ export default function Home() {
     }, []);
 
     const fetchResults = async (q: string, p = 1) => {
-        if (!q.trim()) {
-            setError("Please enter a search query");
-            return;
-        }
-
         setLoading(true);
         setError(null);
 

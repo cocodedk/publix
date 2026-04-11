@@ -12,12 +12,16 @@ export const authOptions: NextAuthOptions = {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" }
             },
-            async authorize(credentials) {
+            async authorize(credentials, req) {
                 if (!credentials?.email || !credentials?.password) {
                     return null;
                 }
 
-                const rateLimit = await checkRateLimit(credentials.email, "auth");
+                // Rate-limit by client IP (+ email) to prevent enumeration and brute-force
+                const forwarded = (req as any)?.headers?.["x-forwarded-for"] as string | undefined;
+                const ip = forwarded ? forwarded.split(",")[0].trim() : ((req as any)?.socket?.remoteAddress ?? "unknown");
+                const rateKey = `${ip}:${credentials.email}`;
+                const rateLimit = await checkRateLimit(rateKey, "auth");
                 if (!rateLimit.allowed) {
                     throw new Error("Too many login attempts");
                 }

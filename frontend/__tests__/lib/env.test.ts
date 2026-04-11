@@ -31,6 +31,6 @@ describe('validateEnv', () => {
     expect(config.SALT).toBe('dGVzdHNhbHQ=')
     expect(config.RESEND_API_KEY).toBe('re_test_123')
     expect(config.RESEND_FROM_EMAIL).toBe('noreply@publix.dk')
-    expect(config.NEXTAUTH_SECRET).toBe('test-secret')
+    expect(config.NEXTAUTH_SECRET).toBe('test-secret-for-jest-0123456789abc')
   })
 })

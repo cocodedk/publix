@@ -3,12 +3,8 @@ import { neo4jClient } from "../../lib/neo4jClient";
 import { Encryptor } from "../../lib/encryptor";
 import { ImportRequest, ImportResponse, ApiError, ImportItem } from "../../lib/types";
 import { requireAuth } from "../../lib/auth";
-import dotenv from "dotenv";
+import { validateEnv } from "../../lib/env";
 import crypto from "crypto";
-
-dotenv.config();
-
-const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.env.SALT || ""));
 
 function parseCSV(csvText: string): ImportItem[] {
     const lines = csvText.split("\n").filter(line => line.trim());
@@ -55,12 +51,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (!user) return;
 
     try {
+        const env = validateEnv();
+        const encryptor = new Encryptor(env.ENCRYPTION_KEY + env.SALT);
         let body: ImportRequest;
 
-        // Check if it's a CSV upload
-        if (req.headers["content-type"]?.includes("text/csv") ||
-            (req.body as string).includes(",") && (req.body as string).includes("\n")) {
-            const csvText = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+        // Check if it's a CSV upload (guard typeof before calling string methods)
+        const isCsvBody =
+            req.headers["content-type"]?.includes("text/csv") ||
+            (typeof req.body === "string" && req.body.includes(",") && req.body.includes("\n"));
+
+        if (isCsvBody) {
+            const csvText = req.body as string;
             const items = parseCSV(csvText);
             body = { items };
         } else {
@@ -94,7 +95,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
                     // Generate email hash
                     const emailHash = crypto.createHash("sha256")
-                        .update(item.email + (process.env.SALT || ""))
+                        .update(item.email + env.SALT)
                         .digest("hex");
 
                     // Encrypt data
@@ -103,7 +104,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     const encryptedLine = encryptor.encrypt(item.line);
 
                     // Generate mainDataId if not provided
-                    const mainDataId = item.mainDataId || `content-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                    const mainDataId = item.mainDataId || `content-${crypto.randomUUID()}`;
 
                     // Create or get TLD, Domain, and ContentLine
                     const query = `

@@ -70,10 +70,7 @@ db_dumps/
 *.sqlite3
 
 # Other
-*.txt
-!llms.txt
-!website/llms.txt
-!frontend/public/llms.txt
+
 *.tmp
 *.temp
 .cache/

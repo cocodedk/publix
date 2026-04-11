@@ -6,43 +6,39 @@
 !.env.example
 
 # Node.js
-frontend/node_modules/
 node_modules/
+frontend/node_modules/
+.npm
+.pnpm-debug.log*
 
 # Next.js
-frontend/.next/
 .next/
-
-# Test coverage
-frontend/coverage/
-coverage/
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Python
-env311/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Node.js (additional)
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-.npm
-.eslintcache
-
-# Next.js (additional)
+frontend/.next/
 out/
 build/
 dist/
+
+# Test coverage
+coverage/
+frontend/coverage/
+
+# Logs
+*.log
+*.log.*
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+Thumbs.db
 
 # IDE
 .vscode/
@@ -51,17 +47,12 @@ dist/
 *.swo
 *~
 
-# OS (additional)
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Desktop.ini
-
-# Logs (additional)
-logs/
-*.log.*
+# Python
+env311/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Database
 db_dumps/
@@ -69,8 +60,8 @@ db_dumps/
 *.sqlite
 *.sqlite3
 
-# Other
-
+# Misc
 *.tmp
 *.temp
 .cache/
+.eslintcache

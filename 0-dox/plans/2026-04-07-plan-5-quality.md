@@ -257,7 +257,7 @@ Note the class name and method signatures before writing tests.
 
 ```typescript
 // frontend/__tests__/lib/encryptor.test.ts
-import { Encryptor } from '../lib/encryptor'
+import { Encryptor } from '../../lib/encryptor'
 
 const KEY = 'dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdA=='
 const SALT = 'dGVzdHNhbHQ='

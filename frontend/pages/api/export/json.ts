@@ -3,11 +3,7 @@ import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
 import { ApiError } from "../../../lib/types";
 import { requireAuth } from "../../../lib/auth";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.env.SALT || ""));
+import { validateEnv } from "../../../lib/env";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any | ApiError>) {
     if (req.method !== "GET") {
@@ -18,6 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (!user) return;
 
     try {
+        const env = validateEnv();
+        const encryptor = new Encryptor(env.ENCRYPTION_KEY + env.SALT);
         const ids = req.query.ids as string | undefined;
         let query: string;
         let params: any = {};

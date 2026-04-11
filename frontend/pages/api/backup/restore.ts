@@ -3,12 +3,8 @@ import { neo4jClient } from "../../../lib/neo4jClient";
 import { Encryptor } from "../../../lib/encryptor";
 import { ApiError } from "../../../lib/types";
 import { requireAuth } from "../../../lib/auth";
-import dotenv from "dotenv";
+import { validateEnv } from "../../../lib/env";
 import crypto from "crypto";
-
-dotenv.config();
-
-const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.env.SALT || ""));
 
 export default async function handler(
     req: NextApiRequest,
@@ -22,6 +18,8 @@ export default async function handler(
     if (!user) return;
 
     try {
+        const env = validateEnv();
+        const encryptor = new Encryptor(env.ENCRYPTION_KEY + env.SALT);
         const { backupData } = req.body;
 
         if (!backupData || !backupData.data || !Array.isArray(backupData.data)) {
@@ -58,7 +56,7 @@ export default async function handler(
 
                 // Generate email hash
                 const emailHash = crypto.createHash("sha256")
-                    .update(email + (process.env.SALT || ""))
+                    .update(email + env.SALT)
                     .digest("hex");
 
                 // Restore node

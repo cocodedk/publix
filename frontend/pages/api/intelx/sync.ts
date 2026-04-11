@@ -5,13 +5,9 @@ import { Encryptor } from "../../../lib/encryptor";
 import { calculateQualityScore, validateEmail, validateDomain, validateTLD, calculateAgeInDays } from "../../../lib/qualityScoring";
 import { ApiError } from "../../../lib/types";
 import { requireAuth } from "../../../lib/auth";
+import { validateEnv } from "../../../lib/env";
 import { parseIntelXResult } from "../../../lib/parsers/intelx";
-import dotenv from "dotenv";
 import crypto from "crypto";
-
-dotenv.config();
-
-const encryptor = new Encryptor((process.env.ENCRYPTION_KEY || "") + (process.env.SALT || ""));
 
 interface SyncRequest {
     queries: string[];
@@ -30,6 +26,8 @@ export default async function handler(
     if (!user) return;
 
     try {
+        const env = validateEnv();
+        const encryptor = new Encryptor(env.ENCRYPTION_KEY + env.SALT);
         const body: SyncRequest = req.body;
 
         if (!body.queries || !Array.isArray(body.queries) || body.queries.length === 0) {
@@ -64,7 +62,7 @@ export default async function handler(
 
                     try {
                         const emailHash = crypto.createHash("sha256")
-                            .update(credential.email + (process.env.SALT || ""))
+                            .update(credential.email + env.SALT)
                             .digest("hex");
 
                         const encryptedEmail = encryptor.encrypt(credential.email);
@@ -72,7 +70,7 @@ export default async function handler(
                             ? encryptor.encrypt(credential.password)
                             : null;
                         const encryptedLine = encryptor.encrypt(credential.line);
-                        const mainDataId = `intelx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                        const mainDataId = `intelx-${crypto.randomUUID()}`;
 
                         // Read existing age for quality score calculation
                         const existingQuery = `MATCH (c:ContentLine {email_hash: $emailHash}) RETURN c.createdAt AS createdAt LIMIT 1`;

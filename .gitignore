@@ -59,6 +59,8 @@ db_dumps/
 
 # Other
 *.txt
+!llms.txt
+!version.txt
 *.tmp
 *.temp
 .cache/

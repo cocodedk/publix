@@ -1,0 +1,23 @@
+# Publix
+
+> Publix (publix.dk) is a breach notification service. Enter an email address to check if it appears in known data breaches — results are sent privately to your inbox, never shown in the browser.
+
+## Stack
+
+- Next.js 13 (Pages Router), TypeScript, Neo4j, Material-UI
+- Breach sources: XposedOrNot, LeakCheck, HIBP Pro, Dehashed
+
+## Author
+
+- **Name**: Babak Bandpey
+- **Website**: https://cocode.dk
+- **LinkedIn**: https://linkedin.com/in/babakbandpey
+- **GitHub**: https://github.com/cocodedk
+
+## Repository
+
+- **GitHub**: https://github.com/cocodedk/publix
+
+## License
+
+Apache-2.0 | © 2026 [Cocode](https://cocode.dk)

@@ -1,5 +1,5 @@
 # ---- Builder stage ----
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 WORKDIR /app
 COPY package.json tsconfig.json next-env.d.ts ./
 COPY lib ./lib
@@ -7,7 +7,7 @@ COPY pages ./pages
 RUN npm ci && npm run build
 
 # ---- Runtime stage ----
-FROM node:24-alpine AS runner
+FROM node:26-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/.next ./.next
